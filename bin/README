@@ -1,0 +1,12 @@
+This directory contains a few utility scripts that you might find of use or
+interest.
+
+The list-* scripts should be fairly self-explanatory. You give them a
+Twitter username and they'll print all friends or followers, either with
+the full info as it comes back from the Twitter API, or as just Twitter
+userids (much faster).
+
+print-caches.py can be used to print the cache files saved by Tickery.
+
+The most instructive is create-twitter-namespaces-and-tags.py. Its one-time
+use is described in doc/running.rst

@@ -1,0 +1,8 @@
+include tickery/Makefile
+include twisted/plugins/*.py
+include tickery/www/*.py
+include tickery/www/Makefile
+include tickery/www/public/*
+include tickery/admin/*.py
+include tickery/admin/Makefile
+include tickery/admin/public/*

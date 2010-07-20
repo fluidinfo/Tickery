@@ -1,0 +1,519 @@
+/*
+ * Copyright 2010 Fluidinfo Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you
+ * may not use this file except in compliance with the License.  You
+ * may obtain a copy of the License at
+ *
+ * http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or
+ * implied.  See the License for the specific language governing
+ * permissions and limitations under the License.
+ */
+
+body {
+  font-size: 1em;
+  /* font-family: 'Myriad', 'Lucida Sans Unicode', 'Lucida Grande', sans-serif; */
+  font-family: 'Lucida Sans Unicode', 'Lucida Grande', sans-serif;
+  background-color: #f6f6fc;
+  /* background-color: #f8f8f8; */
+  margin: 0 0 0 0;
+  padding: 0 0 0 0;
+}
+
+.gwt-TabPanel {
+  /* This is the box at the top of the tabs, holding the tab names. */
+  /* border: 1px solid green; */
+  /* width: 800px; */
+  width: 100%;
+}
+
+.gwt-TabPanelBottom {
+  /* This is the box below the tabs, holding the tab content. */
+  /* border: 1px solid #87B3FF; */
+  /* border: 1px solid #cccccc; */
+  margin-top: 10px;
+  border: none;
+  /* width: 800px; */
+  width: 100%;
+}
+
+.gwt-TabBar {
+  /* background-color: CornflowerBlue; */
+  /* background-color: #f0f0ff; */
+  background-color: #8195d2;
+  color: white;
+  /* border-bottom: 1px solid #aaa; */
+  /* color: white; */
+  /* border: 1px solid green; */
+  /* background-color: #C3D9FF; */
+  /* width: 800px; */
+  width: 100%;
+  /* text-transform: capitalize; */
+}
+
+.gwt-TabBar .gwt-TabBarFirst {
+  height: 100%;
+  padding-left: 0;
+  display: none;
+  /* border: 2px solid green; */
+}
+
+.gwt-TabBar .gwt-TabBarRest {
+  /* padding-right: 3px; */
+  /* border: 2px solid yellow; */
+  border-bottom: 1px solid #aaa;
+}
+
+/* These are the individual items (simple, int, adv, etc) on the tab bar. */
+.gwt-TabBar .gwt-TabBarItem {
+  /* border-top: 1px solid #C3D9FF; */
+  /* border-bottom: 1px solid #C3D9FF; */
+  /* border-bottom: 1px solid #aaa; */
+  padding: 4px 5px 4px 5px;
+  cursor: pointer;
+  height: 100%;
+}
+
+.gwt-TabBar .gwt-TabBarItem-selected {
+  /* font-weight: bold; */
+  background-color: DarkOrange;
+  height: 100%;
+  /* background-color: #f8f8f8; */
+  /* border-bottom: 1px solid #f8f8f8; */
+  /* background-color: #E8EEF7; */
+  /* background-color: OrangeRed; */
+  /* background-color: #8195b2; */
+  /* border-top: 1px solid #87B3FF; */
+  border-left: 1px solid #999;
+  border-right: 1px solid #999;
+  /* border-bottom: 1px solid #E8EEF7; */
+  padding: 4px 5px 4px 5px;
+  cursor: default;
+}
+
+.main-panel {
+  /* background-color: green; */
+  width: 100%;
+  padding: 0 0 0 0;
+  margin: 0 0 0 0;
+  /* border: 1px solid green; */
+}
+
+.tab-panel {
+  /* background-color: green; */
+  width: 100%;
+  padding: 0 0 0 0;
+  margin: 0 0 0 0;
+}
+
+.strapline {
+  /* font-style: italic; */
+  /* padding-bottom: 17px; */
+}
+
+.tracking {
+  font-size: small;
+}
+
+.banner-tickey {
+  /* The height of the sign-in image. Should be less? */
+  /* Doesn't work on MSIE8 :-(  margin-top: -24px; */
+}
+
+.logged-in-text {
+  /* width: 80%; */
+  /* text-align: right; */
+  /* border: 1px solid red; */
+}
+
+.logged-in-text a:link {
+  color: white;
+}
+
+.logged-in-text a:visited {
+  color: white;
+}
+
+.login-image {
+  float: right;
+  margin-right: 4px;
+}
+
+.logout-image {
+  /* border: 1px solid green; */
+  /* float: right; */
+}
+
+.logout-image:hover, .login-image:hover {
+  cursor: pointer;
+}
+
+.why-button {
+  float: right;
+  height: 24px; /* Same height as the login with Twitter image. */
+}
+
+.follow-button {
+  /* margin-top: 3px; */
+}
+
+.follow-result {
+  font-size: small;
+}
+
+.simple-instructions {
+  padding-bottom: 7px;
+  /* font-size: larger; */
+  color: DarkOrange;
+}
+
+.simple-instructions-bottom {
+  color: DarkOrange;
+}
+
+/* A help-panel contains a short-instruction and a help-button. */
+
+.help-panel {
+  /* background-color: yellow; */
+  /* width: 100%; */
+}
+
+.help-button {
+  font-size: small;
+  padding: 0;
+}
+
+.tickery-tab {
+  width: 100%;
+  /* border: 1px solid pink; */
+  /* background-color: orange; */
+}
+
+.tickery-tab-top-grid {
+  width: 100%;
+  /* border: 1px solid red; */
+}
+
+.tickery-tab-panel {
+  /* width: 90%; */
+  width: 100%;
+  /* border: 1px solid blue; */
+  /* background-color: pink; */
+}
+
+.simple-query-box {
+  font-size: large;
+  padding-left: 3;
+  color: #666;
+  /* color: SlateBlue; */
+  /* color: #8195d2; */
+}
+
+.example {
+  font-style: italic;
+  /* color: red; */
+  color: SlateBlue;
+  /* color: SteelBlue; */
+  /* color: #8195d2; */
+}
+
+.icon-panel {
+  /* align: left; */
+  /* width: 95%; */
+  /* background-color: red; */
+}
+
+.icon-outer-panel {
+  /* background-color: green; */
+}
+
+.avatar-small {
+  margin: 1 1 1 1;
+  border: none;
+  height: 24px;
+  width: 24px;
+}
+
+.avatar-small-selected {
+  margin: 0 0 0 0;
+  border: 1px solid red;
+}
+
+.avatar-medium {
+  margin: 2 2 2 2;
+  border: none;
+  height: 32px;
+  width: 32px;
+}
+
+.avatar-medium-selected {
+  margin: 0 0 0 0;
+  border: 2px solid red;
+}
+
+.avatar-large {
+  margin: 2 2 2 2;
+  border: none;
+  height: 48px;
+  width: 48px;
+}
+
+.avatar-large-selected {
+  margin: 0 0 0 0;
+  border: 2px solid red;
+}
+
+.instructions-popup {
+  /* align: left; */
+  width: 95%;
+  padding: 10px;
+}
+
+.instructions-em {
+  font-style: italic;
+}
+
+.user-list-panel {
+  /* align: left; */
+  margin: 0 0 0 0;
+  padding: 0 0 0 0;
+  width: 100%;
+}
+
+.result-panel {
+  margin: 0 0 0 0;
+  /* border: 1px solid red; */
+  padding: 0 0 0 0;
+  margin-left: 10px;
+  /* align: left; */
+}
+
+.result-title {
+  font-size: larger;
+  /* color: #8195d2; */
+  color: SlateBlue;
+  margin-bottom: 5px;
+  /* font-weight: bold; */
+}
+
+.result-detail {
+  /* font-weight: bold; */
+}
+
+.large-avatar-panel {
+  width: 100%;
+  /* border: 1px solid #87B3FF; */
+  border: 1px solid #ddd;
+  margin-bottom: 3px;
+  margin-right: 10px;
+  padding: 3 3 3 3;
+}
+
+.large-avatar-panel img {
+  border: none;
+  height: 48px;
+  width: 48px;
+  padding: 3 3;
+  border: 1px solid #ddd;
+}
+
+.results-left-panel {
+  margin-right: 10px;
+  /* border: 1px solid green; */
+}
+
+.results-left-panel-bottom-left {
+  width: 100%;
+  border: 1px solid #ddd;
+  padding: 3 3 3 3;
+}
+
+.top-panel {
+  /* width: 100%; */
+  /* border: 1px solid orange; */
+}
+
+.banner-panel {
+  /* background-color: yellow; */
+  width: 340px; /* This value is also in UserListPanel in userlist.py */
+  /* margin-bottom: 10px; */
+  margin-left: 5px;
+  margin-right: 5px;
+}
+
+.login-panel {
+  /* margin-left: 5px; */
+  /* width: 100%; */
+  /* padding-top: 7px; */
+  /* background-color: pink; */
+}
+
+/* A query-and-go-panel contains a large-query-area and a go-button. */
+
+.query-and-go-panel {
+  width: 100%;
+  padding-top: 5px;
+  /* border: 1px solid red; */
+  /* background-color: turquoise; */
+}
+
+.large-query-area {
+  /* background-color: green; */
+  width: 100%;
+  font-size: large;
+  /* font-size: larger; */
+  color: #666;
+  padding: 5 5 5 5;
+  /* color: SlateBlue; */
+  /* color: #8195d2; */
+}
+
+.compose-tweet-button {
+  margin-right: 5px;
+}
+
+.tweet-char-count-ok {
+  font-size: 2em;
+  color: blue;
+}
+
+.tweet-char-count-excessive {
+  font-size: 2em;
+  color: red;
+}
+
+.go-button {
+  font-size: large;
+  margin-left: 10px;
+  /* float: right; */
+  /* color: SteelBlue; */
+  /* color: Black; */
+}
+
+.large-avatar-upper-panel {
+}
+
+.large-avatar-upper-text {
+  font-size: larger;
+  color: SlateBlue;
+  /* color: #8195d2; */
+}
+
+.large-avatar-lower-text {
+  /* color: yellow; */
+}
+
+.userlist-error-box {
+  width: 95%;
+  margin-left: 2.5%;
+  margin-right: 2.5%;
+  border: 1px solid #ddd;
+  padding-top: 5;
+}
+
+.userlist-error-title {
+  font-size: larger;
+  color: DarkOrange;
+  /* color: #F60; */
+}
+
+.userlist-error-text {
+  /* font-size: larger; */
+  /* color: SlateBlue; */
+}
+
+.gwt-TextWindow {
+  border:1px solid #000000;
+}
+
+.gwt-DialogBox .Close {
+  cursor: pointer;
+}
+
+.gwt-DialogBox {
+  border: 2px outset;
+  /* background-color: #CF9; */
+  background-color: #f0f0ff;
+}
+
+.gwt-DialogBox .Header {
+  /* background-color: #FF9; */
+  background-color: #8195d2;
+  color: white;
+  border-bottom: 1px solid #aaa;
+  cursor: default;
+  margin: 1px;
+}   
+    
+.gwt-DialogBox .Caption {
+  padding: 1px;
+  font-size: larger;
+  cursor: default;
+}
+
+.about-logo {
+  float: left;
+  margin: 0 20px 10px 0;
+  border: 1px solid #ccc;
+}
+
+.about-panel {
+}
+
+.about-body {
+  width: 95%;
+  /* border: 1px solid red; */
+  margin-top: 15px;
+  margin-left: 2.5%;
+  margin-right: 2.5%;
+}
+
+.about-panel h2, .about-panel h3 {
+  color: DarkOrange;
+  /* color: SlateBlue; */
+}
+
+.without-at-button {
+  margin: 0 5 0 3;
+}
+
+.huh-h3 {
+  color: DarkOrange;
+  /* font-size: 110%; */
+}
+
+table.users {
+  border-collapse: collapse;
+}
+
+table.users td.title {
+  background-color: #8195d2;
+  color: white;
+  border: 1px solid #CCC;
+  border-collapse: collapse;
+}
+
+table.users td.title-lhs {
+  background-color: #f4ffff;
+  border: none;
+}
+
+table.users td.blank {
+  background-color: #f4ffff;
+  border: none;
+}
+
+table.users td {
+  background-color: #f0f0ff;
+  /* background-color: #CF9; */
+  border: 1px solid #CCC;
+  border-collapse: collapse;
+}
+
+.done {
+  background-color: yellow;
+}
