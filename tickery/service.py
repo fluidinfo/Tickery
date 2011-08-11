@@ -24,14 +24,16 @@ from tickery.login import getTwitterOAuthURL
 from tickery.www import defaults
 
 
-class TooManyResults(Exception): pass
+class TooManyResults(Exception):
+    pass
+
 
 screennameListErrors = {
-    ftwitter.NonExistentScreennames : 'nonexistent',
-    ftwitter.ScreennameErrors : 'othererror',
-    ftwitter.ProtectedScreennames : 'protected',
-    ftwitter.TooManyFriends : 'toomany',
-    TooManyResults : 'toomanyresults',
+    ftwitter.NonExistentScreennames: 'nonexistent',
+    ftwitter.ScreennameErrors: 'othererror',
+    ftwitter.ProtectedScreennames: 'protected',
+    ftwitter.TooManyFriends: 'toomany',
+    TooManyResults: 'toomanyresults',
     }
 
 _noScreenname = '<None>'
@@ -46,37 +48,39 @@ class RegularService(jsonrpc.JSONRPC):
         self.ASTBuilder = ASTBuilder()
 
     def jsonrpc_nUsers(self):
-        return {'result' : self.cache.oidUidScreennameCache.nUsers()}
+        return {'result': self.cache.oidUidScreennameCache.nUsers()}
 
     def jsonrpc_spideredScreennames(self, *screennames):
         log.msg('spideredScreenname called with %r.' % (screennames,))
-        return { 'result' :
-                 [ self.cache.adderCache.added(s) for s in screennames ]}
+        return {'result':
+                [self.cache.adderCache.added(s) for s in screennames]}
 
     def _objectIdsToUsers(self, (users, ids)):
-        '''Convert a list of FluidDB object ids to a JSON RPC result dict
+        '''Convert a list of Fluidinfo object ids to a JSON RPC result dict
         containing a list of Twitter screennames.'''
         if ids:
             log.err('Unexpected object ids matched query: %r' % (ids,))
         return {
-            'result' : {
-                'result' : True,
-                'users' : users}}
-    
-    def _objectIdsToUsersWherePossible(self, (users, ids)):
-        return {
-            'result' : {
-                'result' : True,
-                'users' : users,
-                'objectIds' : ids}}
+            'result': {
+                'result': True,
+                'users': users}}
 
     def jsonrpc_friendOf(self, screenname1, screenname2):
-        # Return True if screenname1 follows screenname2 (i.e., screenname2
-        # is a friend of screenname1).
+        """
+        Does screenname1 follow screenname2?
+
+        @param screenname1: A C{str} Twitter screen name.
+
+        @param screenname2: A C{str} Twitter screen name.
+
+        @return: a C{Deferred} that fires with C{True} if screenname1 follows
+        screenname2 (i.e., screenname2 is a friend of screenname1) and with
+        C{False} otherwise.
+        """
         log.msg('FriendOf %r and %r.' % (screenname1, screenname2))
         d = ftwitter.friendOf(self.cache, self.endpoint,
-                              screenname1, screenname2)
-        d.addCallback(lambda result: { 'result' : result })
+                              unicode(screenname1), unicode(screenname2))
+        d.addCallback(lambda result: {'result': result})
         d.addErrback(log.err)
         return d
 
@@ -89,13 +93,13 @@ class RegularService(jsonrpc.JSONRPC):
             raise TooManyResults([n])
         else:
             return results
-        
+
     def _screennameListError(self, fail):
         listErr = fail.trap(*screennameListErrors.keys())
         result = {
-            'result' : {
-                'result' : False,
-                screennameListErrors[listErr] : list(fail.value.args[0]),
+            'result': {
+                'result': False,
+                screennameListErrors[listErr]: list(fail.value.args[0]),
                 }
             }
         # Add the current friends limit if we have that kind of error.
@@ -104,16 +108,16 @@ class RegularService(jsonrpc.JSONRPC):
         elif listErr is TooManyResults:
             result['result']['limit'] = defaults.RESULTS_LIMIT
         return result
-    
+
     def _unaddedError(self, fail):
         fail.trap(ftwitter.UnaddedScreennames)
         return {
-            'result' : {
-                'result' : False,
-                'unadded' : fail.value.args[0],
+            'result': {
+                'result': False,
+                'unadded': fail.value.args[0],
                 }
             }
-        
+
     def jsonrpc_intermediateQuery(self, cookie, tabName, query):
         try:
             data = self.cache.cookieCache[cookie]
@@ -122,28 +126,30 @@ class RegularService(jsonrpc.JSONRPC):
         else:
             screenname = data[0]['screen_name']
 
-        log.msg('QUERY: tab=%s user=%r query=%r' % (tabName, screenname, query))
-            
+        log.msg('QUERY: tab=%s user=%r query=%r' % (
+            tabName, screenname, query))
+
         try:
             parseTree = self.ASTBuilder.build(query)
         except TokenError, p:
             log.msg('User %r sent malformed query %r' % (screenname, query))
             return {
-                'result' : {
-                    'result' : False,
-                    'value' : p.value,
-                    'offset' : p.offset,
+                'result': {
+                    'result': False,
+                    'value': p.value,
+                    'offset': p.offset,
                     }
                 }
         except UnparseableError:
             log.msg('User %r sent unparsable query %r' % (screenname, query))
             return {
-                'result' : {
-                    'result' : False,
+                'result': {
+                    'result': False,
                     }
                 }
         else:
-            d = ftwitter.intermediateQuery(self.cache, self.endpoint, parseTree)
+            d = ftwitter.intermediateQuery(
+                self.cache, self.endpoint, parseTree)
             d.addCallback(self._checkTooManyResults)
             d.addCallback(
                 self.cache.oidUidScreennameCache.objectIdsToUsers,
@@ -154,55 +160,56 @@ class RegularService(jsonrpc.JSONRPC):
             d.addErrback(log.err)
             return d
 
-    def _fluidDBError(self, fail, query):
-        err = fail.check(ftwitter.FluidDBParseError,
-                         ftwitter.FluidDBError,
-                         ftwitter.FluidDBNonexistentAttribute,
-                         ftwitter.FluidDBPermissionDenied)
+    def _fluidinfoError(self, fail, query):
+        err = fail.check(ftwitter.FluidinfoParseError,
+                         ftwitter.FluidinfoError,
+                         ftwitter.FluidinfoNonexistentAttribute,
+                         ftwitter.FluidinfoPermissionDenied)
         if err is None:
-            log.msg('Error on FluidDB query %r:' % query)
+            log.msg('Error on Fluidinfo query %r:' % query)
             log.err(fail)
             errorClass = 'unknown'
         else:
             errorClass = err.__name__
         return {
-            'result' : {
-                'result' : False,
-                'errorClass' : errorClass,
+            'result': {
+                'result': False,
+                'errorClass': errorClass,
                 }
             }
 
-    def jsonrpc_fluidDBQuery(self, cookie, tabName, query):
+    def jsonrpc_fluidinfoQuery(self, cookie, tabName, query):
         try:
             data = self.cache.cookieCache[cookie]
         except KeyError:
             screenname = _noScreenname
         else:
             screenname = data[0]['screen_name']
-        log.msg('QUERY: tab=%s user=%r query=%r' % (tabName, screenname, query))
-        d = ftwitter.fluidDBQuery(self.endpoint, query)
+        log.msg('QUERY: tab=%s user=%r query=%r' % (
+            tabName, screenname, query))
+        d = ftwitter.fluidinfoQuery(self.endpoint, query)
         d.addCallback(self._checkTooManyResults)
         d.addCallback(
             self.cache.oidUidScreennameCache.objectIdsToUsers,
             self.cache.userCache)
-        d.addCallback(self._objectIdsToUsersWherePossible)
-        d.addErrback(self._screennameListError) # Catches TooManyResults
-        d.addErrback(self._fluidDBError, query)
+        d.addCallback(self._objectIdsToUsers)
+        d.addErrback(self._screennameListError)  # Catches TooManyResults
+        d.addErrback(self._fluidinfoError, query)
         return d
 
     def _loginRedirectURL(self, URL):
         return {
-                'result' : {
-                    'result' : True,
-                    'URL' : URL,
+                'result': {
+                    'result': True,
+                    'URL': URL,
                     }
                 }
-    
+
     def _loginRedirectErr(self, failure):
         return {
-                'result' : {
-                    'result' : False,
-                    'error' : str(failure),
+                'result': {
+                    'result': False,
+                    'error': str(failure),
                     }
                 }
 
@@ -216,16 +223,16 @@ class RegularService(jsonrpc.JSONRPC):
             data = self.cache.cookieCache[cookie]
         except KeyError:
             return {
-                'result' : {
-                    'result' : False,
+                'result': {
+                    'result': False,
                     }
                 }
         else:
             user, _ = data
             return {
-                'result' : {
-                    'result' : True,
-                    'screen_name' : user['screen_name'],
+                'result': {
+                    'result': True,
+                    'screen_name': user['screen_name'],
                     }
                 }
 
@@ -239,24 +246,24 @@ class RegularService(jsonrpc.JSONRPC):
             user, _ = data
             log.msg('Logging out user %r.' % user['screen_name'])
         return {
-                'result' : True,
+                'result': True,
             }
-    
+
     def _tweetURL(self, response):
         import pprint
         log.msg('Update got response %s' % pprint.pformat(response))
         return {
-                'result' : {
-                    'result' : True,
-                    'URL' : twitter.statusURLFromUpdateResponse(response),
+                'result': {
+                    'result': True,
+                    'URL': twitter.statusURLFromUpdateResponse(response),
                     }
                 }
-    
+
     def _tweetError(self, failure):
         return {
-                'result' : {
-                    'result' : False,
-                    'error' : str(failure),
+                'result': {
+                    'result': False,
+                    'error': str(failure),
                     }
                 }
 
@@ -278,7 +285,7 @@ class RegularService(jsonrpc.JSONRPC):
         log.msg('Getting friend ids for %r.' % screenname)
         d = ftwitter.friendsIdFetcher(cookie, self.cache, screenname)
         d.addCallback(lambda friendsIds: {
-            'result' : { 'friendsIds' : friendsIds, },
+            'result': {'friendsIds': friendsIds},
             })
         return d
 
@@ -287,7 +294,7 @@ class RegularService(jsonrpc.JSONRPC):
         d = twitter.follow(cookie, self.cache, uid)
         d.addCallback(lambda _: ftwitter.follow(cookie, self.cache,
                                                 self.endpoint, uid))
-        d.addCallback(lambda _: { 'result' : True })
+        d.addCallback(lambda _: {'result': True})
         return d
 
     def jsonrpc_unfollow(self, cookie, uid):
@@ -295,7 +302,7 @@ class RegularService(jsonrpc.JSONRPC):
         d = twitter.unfollow(cookie, self.cache, uid)
         d.addCallback(lambda _: ftwitter.unfollow(cookie, self.cache,
                                                   self.endpoint, uid))
-        d.addCallback(lambda _: { 'result' : True })
+        d.addCallback(lambda _: {'result': True})
         return d
 
 
@@ -306,96 +313,99 @@ class AdminService(jsonrpc.JSONRPC):
         self.cache = cache
 
     def jsonrpc_getQueueWidth(self):
-        return { 'result' : self.cache.adderCache.rdq.width }
+        return {'result': self.cache.adderCache.rdq.width}
 
     def jsonrpc_setQueueWidth(self, width):
         try:
             width = int(width)
         except ValueError:
-            return { 'result' : False }
+            return {'result': False}
         else:
             self.cache.adderCache.rdq.width = width
-            return { 'result' : True }
+            return {'result': True}
 
     def jsonrpc_queueSize(self):
-        return { 'result' : self.cache.adderCache.rdq.size() }
+        return {'result': self.cache.adderCache.rdq.size()}
 
     def jsonrpc_queuePaused(self):
-        return { 'result' : self.cache.adderCache.rdq.paused }
+        return {'result': self.cache.adderCache.rdq.paused}
 
     def jsonrpc_pause(self):
         d = self.cache.adderCache.rdq.pause()
-        d.addCallback(lambda _: { 'result' : True })
+        d.addCallback(lambda _: {'result': True})
         return d
-    
+
     def jsonrpc_resume(self):
         self.cache.adderCache.rdq.resume()
-        return { 'result' : True }
-    
+        return {'result': True}
+
     def jsonrpc_getQueued(self):
-        pending = self.cache.adderCache.rdq.pending()
-        result = [[u.screenname, u.nFriends, time.ctime(u.queuedAt)]
-                  for u in pending]
-        return { 'result' : result }
-    
+        pendingJobs = self.cache.adderCache.rdq.pending()
+        result = [[pj.jobarg.screenname, pj.jobarg.nFriends,
+                   time.ctime(pj.queuedTime)] for pj in pendingJobs]
+        return {'result': result}
+
     def jsonrpc_getUnderway(self):
-        underway = self.cache.adderCache.rdq.underway()
+        underwayJobs = self.cache.adderCache.rdq.underway()
         result = []
-        for u in underway:
-            pct = 100.0 * float(u.job.workDone) / float(u.job.workToDo)
+        for job in underwayJobs:
+            user = job.jobarg
+            pct = 100.0 * float(user.workDone) / float(user.workToDo)
             result.append([
-                u.job.screenname,
-                u.job.nFriends,
+                user.screenname,
+                user.nFriends,
                 pct,
-                time.ctime(u.job.queuedAt),
-                time.ctime(u.startTime),]
+                time.ctime(job.queuedTime),
+                time.ctime(job.startTime)]
                 )
-        return { 'result' : result }
-    
+        return {'result': result}
+
     def jsonrpc_getMaxRequestsLimit(self):
-        return { 'result' : ftwitter.MAX_SIMULTANEOUS_REQUESTS }
-    
+        return {'result': ftwitter.MAX_SIMULTANEOUS_REQUESTS}
+
     def jsonrpc_setMaxRequestsLimit(self, limit):
         try:
             ftwitter.MAX_SIMULTANEOUS_REQUESTS = int(limit)
         except ValueError:
-            return { 'result' : False }
+            return {'result': False}
         else:
-            return { 'result' : True }
-        
+            return {'result': True}
+
     def jsonrpc_getFriendsLimit(self):
-        return { 'result' : defaults.FRIENDS_LIMIT }
-    
+        return {'result': defaults.FRIENDS_LIMIT}
+
     def jsonrpc_setFriendsLimit(self, limit):
         try:
             defaults.FRIENDS_LIMIT = int(limit)
         except ValueError:
-            return { 'result' : False }
+            return {'result': False}
         else:
-            return { 'result' : True }
-    
+            return {'result': True}
+
     def jsonrpc_getResultsLimit(self):
-        return { 'result' : defaults.RESULTS_LIMIT }
-    
+        return {'result': defaults.RESULTS_LIMIT}
+
     def jsonrpc_setResultsLimit(self, limit):
         try:
             defaults.RESULTS_LIMIT = int(limit)
         except ValueError:
-            return { 'result' : False }
+            return {'result': False}
         else:
-            return { 'result' : True }
+            return {'result': True}
 
     def jsonrpc_directAddUser(self, screenname):
         def _err(fail):
             return {
-                'error' : None,
-                'message' : str(fail.value),
+                'error': None,
+                'message': str(fail.value),
                 }
+
         def _ok(result):
             return {
-                'result' : True,
+                'result': True,
                 }
-        d = ftwitter.directAddUser(self.cache, screenname)
+
+        d = ftwitter.directAddUser(self.cache, unicode(screenname))
         d.addCallbacks(_ok, _err)
         return d
 
@@ -405,14 +415,15 @@ class AdminService(jsonrpc.JSONRPC):
             log.msg('Errs is %r' % (errs,))
             if errs:
                 return {
-                    'message' : errs,
+                    'message': errs,
                     }
             else:
                 return {
-                    'result' : True,
+                    'result': True,
                     }
-            
-        d = ftwitter.bulkAddUsers(self.cache, screennames.split())
+
+        d = ftwitter.bulkAddUsers(
+            self.cache, map(unicode, screennames.split()))
         d.addCallback(_ret)
         return d
 
@@ -421,9 +432,9 @@ class AdminService(jsonrpc.JSONRPC):
             self.cache.adderCache.cancel(screenname)
         except Exception, e:
             return {
-                'message' : str(e)
+                'message': str(e)
                 }
         else:
             return {
-                'result' : True,
+                'result': True,
                 }

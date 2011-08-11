@@ -19,6 +19,7 @@ from tickery import twitter, oauth, consumer, signature
 from tickery.www import defaults
 from tickery.looper import RetryingCall
 
+
 def getTwitterOAuthURL(oauthTokenDict):
     log.msg('Got login URL request.')
 

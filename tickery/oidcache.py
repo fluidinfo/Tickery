@@ -55,11 +55,11 @@ class OidUidScreennameCache(DumpingCache):
                     self.screennameToObjectId[item.screenname.lower()] = oid
 
     def __str__(self):
-        s = [ '%d oids in oid/uid/name cache' % len(self.objectIdToItem) ]
+        s = ['%d oids in oid/uid/name cache' % len(self.objectIdToItem)]
         for key in sorted(self.objectIdToItem.keys()):
             s.append('%s: %s' % (key, self.objectIdToItem[key]))
         return '\n'.join(s)
-    
+
     def nUsers(self):
         return len(self.objectIdToItem)
 
@@ -86,19 +86,19 @@ class OidUidScreennameCache(DumpingCache):
     def objectIdByScreenname(self, screenname):
         try:
             return defer.succeed(self.screennameToObjectId[screenname.lower()])
-        except KeyError:        
+        except KeyError:
             def _cb(results):
                 nResults = len(results)
                 if nResults == 0:
                     raise Exception(
-                        'Screenname %r not known to FluidDB' % screenname)
+                        'Screenname %r not known to Fluidinfo' % screenname)
                 elif nResults == 1:
                     objectId = results[0].uuid
                     self.add(objectId, screenname=screenname)
                     return objectId
                 else:
                     log.err('ERROR: Twitter screenname %r found %d times '
-                            'in FluidDB! ObjectIds = %r' %
+                            'in Fluidinfo! ObjectIds = %r' %
                             (screenname, nResults, results))
                     # Don't crash: just return the first object id found.
                     return results[0]
@@ -118,19 +118,19 @@ class OidUidScreennameCache(DumpingCache):
             if nResults:
                 if nResults > 1:
                     msg = ('User with Twitter id %d exists %d times '
-                           'in FluidDB! Ignoring.' % (uid, nResults))
+                           'in Fluidinfo! Ignoring.' % (uid, nResults))
                     log.err(msg)
                     raise Exception(msg)
                 else:
                     o = results[0]
                     self.add(o.uuid, uid, screenname)
-                    log.msg('Found FluidDB object for Twitter user %d.' % uid)
+                    log.msg('Found Fluidinfo object for Twitter user %d.' %
+                            uid)
             else:
-                about = '%s:uid:%d' % (TWITTER_USERNAME, uid)
-                o = yield Object.create(self.endpoint, about)
                 if screenname is None:
                     assert userNameCache is not None
                     screenname = yield userNameCache.screennameByUid(uid)
+                o = yield Object.create(self.endpoint, u'@%s' % screenname)
                 log.msg('Made new object for Twitter user %r (uid %d).' %
                         (screenname, uid))
                 # TODO: what happens if something goes wrong here?
@@ -138,14 +138,14 @@ class OidUidScreennameCache(DumpingCache):
                     o.set(self.endpoint, ftwitter.idTag, int(uid)),
                     o.set(self.endpoint, ftwitter.screennameTag, screenname),
                     ])
-                log.msg('Set id/created tags on obj for Twitter user %r' %
-                        screenname)
+                log.msg('Set id and screenname tags on obj for '
+                        'Twitter user %r' % screenname)
                 self.add(o.uuid, uid, screenname)
             defer.returnValue(o)
 
     def knownUid(self, uid):
         return uid in self.uidToObjectId
-    
+
     def removeUid(self, uid):
         if uid in self.uidToObjectId:
             objectId = self.uidToObjectId[uid]
@@ -158,15 +158,15 @@ class OidUidScreennameCache(DumpingCache):
                         del self.screennameToObjectId[screenname]
                 del self.objectIdToItem[objectId]
             self.clean = False
-        
+
     def objectIdsToUsers(self, objectIds, userCache):
-        '''Convert a list of FluidDB object ids to a 2-tuple, a list of
-        Twitter screennames and a list of any FluidDB object ids that did
+        '''Convert a list of Fluidinfo object ids to a 2-tuple, a list of
+        Twitter screennames and a list of any Fluidinfo object ids that did
         not correspond to Twitter users.'''
         users = []
         ids = []
         deferreds = []
-        
+
         for objectId in objectIds:
             try:
                 item = self.objectIdToItem[objectId]

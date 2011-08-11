@@ -19,5 +19,5 @@ class TickeryService(JSONProxy):
     def __init__(self):
         JSONProxy.__init__(self, '/tickery',
             ['nUsers', 'spideredScreennames', 'friendOf', 'intermediateQuery',
-             'fluidDBQuery', 'simpleTweet',  'tweet', 'login', 'logout',
+             'fluidinfoQuery', 'simpleTweet',  'tweet', 'login', 'logout',
              'screenameFromCookie', 'friendsIds', 'follow', 'unfollow'])

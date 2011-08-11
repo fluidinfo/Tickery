@@ -35,7 +35,7 @@ class ResultHandler(object):
             users = result['users']
             title = self.titleMaker(users)
             if users:
-                kw = { 'query' : self.query }
+                kw = {'query': self.query}
                 if self.tabName == 'simple':
                     kw['screennames'] = self.sender.getNames()
                 self.sender.results.setUsers(title, users, kw)
@@ -44,27 +44,6 @@ class ResultHandler(object):
                 self.sender.results.add(l)
                 self.sender.results.add(HTML('<a href="%s">Link</a>' %
                                              self.sender.resultsLink()))
-
-            # Look for additional object ids that could come back for the
-            # advanced tab.
-            if self.tabName == 'advanced':
-                objectIds = result['objectIds']
-                if objectIds:
-                    showing = ''
-                    nObjectIds = len(objectIds)
-                    if nObjectIds > 1:
-                        plural1, plural2 = 's', ''
-                        if nObjectIds > 5:
-                            showing = ' (showing just 5)'
-                            objectIds = objectIds[:5]
-                    else:
-                        plural1, plural2 = '', 'es'
-                    title = '%s FluidDB object id%s match%s%s' % (
-                        nObjectIds, plural1, plural2, showing)
-                    text = '<br/>'.join(objectIds)
-                    self.sender.results.add(HTML(
-                        '<p><span class="result-title">%s</span><br/>%s</p>' %
-                        (title, text)))
         else:
             if 'unadded' in result:
                 # Clear the former results, if any.

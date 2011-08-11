@@ -14,7 +14,12 @@
 
 import urllib
 
-import go, userlist, server, text, results, defaults
+import go
+import userlist
+import server
+import text
+import results
+import defaults
 
 from pyjamas.ui.Label import Label
 from pyjamas.ui.Button import Button
@@ -47,14 +52,15 @@ class InstructionBox(DialogBoxModal):
 
 SHORT_INSTRUCTIONS = {
     # Don't put line breaks into the following strings. MSIE preserves them!
-    'intermediate' :
+    'intermediate':
     """Explore sets of Twitter friends by querying on their user names""",
-    
-    'advanced' :
-    """Query Twitter friends & more with the full FluidDB query language""",
+
+    'advanced':
+    """Query Twitter friends & more with the full Fluidinfo query language""",
     }
 
 HELP_TEXT = 'huh?'
+
 
 def titleMaker(users):
     if users:
@@ -68,19 +74,17 @@ def titleMaker(users):
         return 'Results set is empty.'
 
 
-
 class TickeryTab(VerticalPanel):
 
-    process = None # Define in subclass.
-    
+    process = None  # Define in subclass.
+
     def __init__(self, topPanel, **kwargs):
         VerticalPanel.__init__(self,
                                HorizontalAlignment=HasAlignment.ALIGN_LEFT,
                                StyleName='tickery-tab',
                                **kwargs)
-        self.topPanel = topPanel # don't add this yet!
-        self.topGrid = Grid(1, 2, StyleName='tickery-tab-top-grid',
-                            HorizontalAlignment=HasAlignment.ALIGN_LEFT)
+        self.topPanel = topPanel  # don't add this yet!
+        self.topGrid = Grid(1, 2, StyleName='tickery-tab-top-grid')
         self.add(self.topGrid)
         self.autoActivate = False
 
@@ -108,7 +112,7 @@ class LargeQueryTab(TickeryTab):
     instructionsTitle = None
     tabName = None
     defaultQuery = None
-    
+
     def __init__(self, topPanel):
         TickeryTab.__init__(self, topPanel)
         # Get the query string and wanted tab, if any, from URL args.
@@ -122,7 +126,7 @@ class LargeQueryTab(TickeryTab):
             self.autoActivate = True
         else:
             query = self.defaultQuery
-            
+
         self.instructions.setHorizontalAlignment(HasAlignment.ALIGN_LEFT)
         self.instructions.setStyleName('instructions-popup')
         self.popup = InstructionBox(
@@ -136,15 +140,14 @@ class LargeQueryTab(TickeryTab):
                              (SHORT_INSTRUCTIONS[self.tabName], huhId),
                              StyleName='simple-instructions')
         help.add(self.db, huhId)
-        
+
         self.goButton = go.GoButton(self)
         self.query = text.TextAreaFocusHighlight(Text=query,
                                                  VisibleLines=3,
                                                  StyleName='large-query-area')
         self.checkResult = HorizontalPanel(Spacing=4)
-        
-        mainGrid = Grid(2, 2, StyleName='tickery-tab-panel',
-                        HorizontalAlignment=HasAlignment.ALIGN_LEFT)
+
+        mainGrid = Grid(2, 2, StyleName='tickery-tab-panel')
         formatter = mainGrid.getCellFormatter()
         mainGrid.setWidget(0, 0, help)
         mainGrid.setWidget(1, 0, self.query)
@@ -153,7 +156,7 @@ class LargeQueryTab(TickeryTab):
         formatter.setHorizontalAlignment(1, 0, 'left')
         formatter.setAlignment(1, 1, 'left', 'bottom')
         self.topGrid.setWidget(0, 1, mainGrid)
-        
+
         self.add(self.checkResult)
         self.results = userlist.UserListPanel(self, topPanel,
             HorizontalAlignment=HasAlignment.ALIGN_LEFT)
@@ -199,12 +202,12 @@ class LargeQueryTab(TickeryTab):
 
     def resultsLink(self):
         d = {
-        'query' : self.query.getText().strip(),
-        'sort' : userlist._sortKey,
-        'icon' : userlist._iconSize,
-        'tab' : self.tabName,
+        'query': self.query.getText().strip(),
+        'sort': userlist._sortKey,
+        'icon': userlist._iconSize,
+        'tab': self.tabName,
             }
-        
+
         return '%s?%s' % (defaults.TICKERY_URL, urllib.urlencode(d))
 
     def adjustSize(self, width, height):

@@ -46,7 +46,7 @@ class QueueWidth(HorizontalPanel):
 class WidthDisplay(object):
     def __init__(self, queueWidth):
         self.sender = queueWidth
-                 
+
     def onClick(self, sender):
         self.sender.err.setText('')
         self.sender.refresh.setEnabled(False)
@@ -67,7 +67,7 @@ class WidthDisplay(object):
 class WidthUpdate(object):
     def __init__(self, queueWidth):
         self.sender = queueWidth
-                 
+
     def onClick(self, sender):
         self.sender.err.setText('')
         value = self.sender.newValue.getText().strip()
@@ -80,7 +80,7 @@ class WidthUpdate(object):
             id = remote.setQueueWidth(value, self)
             if id < 0:
                 self.sender.err.setText('oops: could not setQueueWidth')
-            
+
     def onRemoteResponse(self, result, request_info):
         self.sender.update.setEnabled(True)
         self.sender.value.setText(self.value)

@@ -12,7 +12,8 @@
 # implied.  See the License for the specific language governing
 # permissions and limitations under the License.
 
-import time, urllib
+import time
+import urllib
 
 from twisted.internet import defer, task
 from twisted.python import log, failure
@@ -29,7 +30,7 @@ from tickery.www.defaults import (TICKERY_URL, TWITTER_USERNAME,
     TWITTER_N_FOLLOWERS_TAG_NAME, TWITTER_N_STATUSES_TAG_NAME)
 
 # This is the maximum requests that will be sent out at once by anything
-# using a task.Cooperator. That's usually FluidDB, but it can also mean
+# using a task.Cooperator. That's usually Fluidinfo, but it can also mean
 # this many requests going at once to Twitter to pick up user details.
 MAX_SIMULTANEOUS_REQUESTS = 5
 
@@ -40,9 +41,9 @@ WORK_TO_TAG_A_FRIEND = 1
 
 # Put this into www/defaults and re-org stuff in www/*.py in another branch.
 tabName = {
-    'simple' : 'simple',
-    'intermediate' : 'intermediate',
-    'advanced' : 'advanced',
+    'simple': 'simple',
+    'intermediate': 'intermediate',
+    'advanced': 'advanced',
     }
 
 _hashTag = '#tickery'
@@ -74,24 +75,59 @@ nStatusesTag = Tag(TWITTER_USERNAME,
 # The Twitter tags we additionally add to user objects. There are several
 # others we could add to this.
 extraTags = {
-    TWITTER_N_FRIENDS_TAG_NAME : nFriendsTag,
-    TWITTER_N_FOLLOWERS_TAG_NAME : nFollowersTag,
-    TWITTER_N_STATUSES_TAG_NAME : nStatusesTag,
+    TWITTER_N_FRIENDS_TAG_NAME: nFriendsTag,
+    TWITTER_N_FOLLOWERS_TAG_NAME: nFollowersTag,
+    TWITTER_N_STATUSES_TAG_NAME: nStatusesTag,
     }
 
 
-class UnknownScreenname(Exception): pass
-class UnaddedScreennames(Exception): pass
-class ScreennameErrors(Exception): pass
-class NonExistentScreennames(Exception): pass
-class ProtectedScreenname(Exception): pass
-class ProtectedScreennames(Exception): pass
-class TooManyFriends(Exception): pass
-class FluidDBParseError(Exception): pass
-class FluidDBNonexistentAttribute(Exception): pass
-class FluidDBPermissionDenied(Exception): pass
-class FluidDBError(Exception): pass
-class Canceled(Exception): pass
+class UnknownScreenname(Exception):
+    pass
+
+
+class UnaddedScreennames(Exception):
+    pass
+
+
+class ScreennameErrors(Exception):
+    pass
+
+
+class NonExistentScreennames(Exception):
+    pass
+
+
+class ProtectedScreenname(Exception):
+    pass
+
+
+class ProtectedScreennames(Exception):
+    pass
+
+
+class TooManyFriends(Exception):
+    pass
+
+
+class FluidinfoParseError(Exception):
+    pass
+
+
+class FluidinfoNonexistentAttribute(Exception):
+    pass
+
+
+class FluidinfoPermissionDenied(Exception):
+    pass
+
+
+class FluidinfoError(Exception):
+    pass
+
+
+class Canceled(Exception):
+    pass
+
 
 def _ignoreHTTPStatus(fail, status):
     fail.trap(error.Error)
@@ -218,7 +254,7 @@ def addUserByScreenname(cache, endpoint, userJob):
     user = yield cache.userCache.userByScreenname(screenname)
     userObject = yield makeUser(user)
     log.msg('User object for %r is %r' % (screenname, userObject))
-    
+
     # Add the amount of work will it be to tag all friends.
     userJob.workToDo += (len(friendUids) * WORK_TO_TAG_A_FRIEND)
 
@@ -233,7 +269,7 @@ def addUserByScreenname(cache, endpoint, userJob):
         userJob.workToDo += (nFriendsToAdd * WORK_TO_CREATE_A_FRIEND)
         start = time.time()
 
-        # Create FluidDB objects for all the friends that we don't yet know
+        # Create Fluidinfo objects for all the friends that we don't yet know
         # about.
         jobs = makeCreateUserJobs(friendsToAdd)
         deferreds = []
@@ -270,7 +306,7 @@ def addUserByScreenname(cache, endpoint, userJob):
             log.msg('Tagged %d objects as being a friend of %r in %.2f '
                     'seconds. Mean = %.4f' % (nFriendsUids, screenname,
                     elapsed, float(elapsed / nFriendsUids)))
-    
+
     if userJob.canceled():
         log.msg('Canceled addUserByScreenname for %r.' % screenname)
         raise Canceled(screenname)
@@ -279,8 +315,9 @@ def addUserByScreenname(cache, endpoint, userJob):
         log.msg('Adding updated tag to user object for %r' % screenname)
         yield userObject.set(endpoint, updatedTag, int(time.time()))
         log.msg('Successfully added screenname %r.' % (screenname,))
-        
+
     userJob.workDone = userJob.workToDo
+
 
 def friendOf(cache, endpoint, screenname1, screenname2):
     # Does the object for the user screenname2 have a screenname1
@@ -300,18 +337,21 @@ def friendOf(cache, endpoint, screenname1, screenname2):
         d = o.get(endpoint, tag)
         d.addCallback(lambda _: True)
         return d
-        
+
     d = cache.oidUidScreennameCache.objectIdByScreenname(screenname2)
     d.addCallback(checkTagOnObject)
     d.addErrback(filter404)
     return d
 
+
 def intermediateQuery(cache, endpoint, queryTree):
     screennames = set()
     query.queryTreeExtractScreennames(queryTree, screennames)
     d = cache.userCache.usersByScreennames(screennames)
-    d.addCallback(cb_intermediateQuery, screennames, cache, endpoint, queryTree)
+    d.addCallback(cb_intermediateQuery, screennames, cache, endpoint,
+                  queryTree)
     return d
+
 
 def cb_intermediateQuery(users, screennames, cache, endpoint, queryTree):
     # Make sure all users exist, that there were no other errors in
@@ -337,13 +377,13 @@ def cb_intermediateQuery(users, screennames, cache, endpoint, queryTree):
     protected = [name for name in users if users[name]['protected']]
     if protected:
         raise ProtectedScreennames(protected)
-    
+
     # Make sure to use defaults.FRIENDS_LIMIT here, not to import
     # that value. That's because we can change the value (in the
     # defaults module) using the admin interface.
-    tooMany =  [(name, users[name]['friends_count']) for name in users if
-                (users[name]['friends_count'] > defaults.FRIENDS_LIMIT and
-                 not cache.adderCache.added(name))]
+    tooMany = [(name, users[name]['friends_count']) for name in users if
+               (users[name]['friends_count'] > defaults.FRIENDS_LIMIT and
+                not cache.adderCache.added(name))]
     if tooMany:
         raise TooManyFriends(tooMany)
 
@@ -363,7 +403,7 @@ def cb_intermediateQuery(users, screennames, cache, endpoint, queryTree):
     # We're good to go.
     queryStr = query.queryTreeToString(
         queryTree, TWITTER_USERNAME, TWITTER_FRIENDS_NAMESPACE_NAME)
-    
+
     try:
         result = cache.queryCache.lookupQueryResult(queryStr)
     except KeyError:
@@ -379,35 +419,39 @@ def cb_intermediateQuery(users, screennames, cache, endpoint, queryTree):
         log.msg('Query cache hit (size %d) for %r.' % (len(result), queryStr))
         return defer.succeed(result)
 
-_fluidDBErrors = {
-    'TParseError' : FluidDBParseError,
-    'TPathPermissionDenied' : FluidDBPermissionDenied,
-    'TNonexistentAttribute' : FluidDBNonexistentAttribute,
+_fluidinfoErrors = {
+    'TParseError': FluidinfoParseError,
+    'TPathPermissionDenied': FluidinfoPermissionDenied,
+    'TNonexistentAttribute': FluidinfoNonexistentAttribute,
     }
+
 
 def _queryErr(fail, query):
     fail.trap(error.Error)
     errorClass = fail.value.response_headers.get('x-fluiddb-error-class')
     if errorClass is None:
-        log.msg('No Fluiddb error class header! Query %r got HTTP status %s' %
-                (query, fail.value.status))
-        raise FluidDBError()
+        log.msg('No Fluidinfo error class header! '
+                'Query %r got HTTP status %s' % (query, fail.value.status))
+        raise FluidinfoError()
     else:
         errorClass = errorClass[0]
 
     try:
         log.msg('Error Class %r' % (errorClass,))
-        raise _fluidDBErrors[errorClass]()
+        raise _fluidinfoErrors[errorClass]()
     except KeyError:
-        log.msg('Unhandled Fluiddb error class %r Query %r got HTTP status %s' %
+        log.msg('Unhandled Fluidinfo error class %r Query %r got '
+                'HTTP status %s' %
                 (errorClass, query, fail.value.status))
-        raise FluidDBError()
+        raise FluidinfoError()
 
-def fluidDBQuery(endpoint, query):
+
+def fluidinfoQuery(endpoint, query):
     d = Object.query(endpoint, query)
     d.addCallback(lambda results: [r.uuid for r in results])
     d.addErrback(_queryErr, query)
     return d
+
 
 def simpleTweetURL(screennames, sortKey):
     return '%s?tab=%s&name1=%s&name2=%s&sort=%s' % (
@@ -415,6 +459,7 @@ def simpleTweetURL(screennames, sortKey):
         urllib.quote(screennames[0].encode('utf-8')),
         urllib.quote(screennames[1].encode('utf-8')),
         sortKey)
+
 
 def simpleUpdate(cookie, cookieDict, screennames, nUsers, sortKey, useAtSigns):
     for i, name in enumerate(screennames):
@@ -435,9 +480,12 @@ def simpleUpdate(cookie, cookieDict, screennames, nUsers, sortKey, useAtSigns):
         text = '%s %s' % (basic, url)
     return twitter.updateStatus(text, cookie, cookieDict)
 
+
 def tweetURL(query, tabName, sortKey):
     return '%s?tab=%s&query=%s&sort=%s' % (
-        TICKERY_URL, tabName, urllib.quote_plus(query.encode('utf-8')), sortKey)
+        TICKERY_URL, tabName, urllib.quote_plus(query.encode('utf-8')),
+        sortKey)
+
 
 def update(cookie, cookieDict, text, query, tabName, sortKey):
     url = tweetURL(query, tabName, sortKey)
@@ -447,12 +495,14 @@ def update(cookie, cookieDict, text, query, tabName, sortKey):
         text = '%s %s' % (text, url)
     return twitter.updateStatus(text, cookie, cookieDict)
 
+
 def _lookupCookie(cookie, cache, fname):
     try:
         return cache.cookieCache[cookie]
     except KeyError:
         log.err('%s: Could not find cookie %r.' % (fname, cookie))
         raise terror.NoSuchCookie()
+
 
 def follow(cookie, cache, endpoint, uid):
     user, _ = _lookupCookie(cookie, cache, 'follow')
@@ -461,9 +511,10 @@ def follow(cookie, cache, endpoint, uid):
     d = cache.oidUidScreennameCache.objectByUid(
         uid, userNameCache=cache.userCache)
     d.addCallback(lambda o: o.set(endpoint, tag, None))
-    # The logged in user may not yet exist in FluidDB.
+    # The logged in user may not yet exist in Fluidinfo.
     d.addErrback(_ignoreHTTPStatus, http.NOT_FOUND)
     return d
+
 
 def unfollow(cookie, cache, endpoint, uid):
     user, _ = _lookupCookie(cookie, cache, 'unfollow')
@@ -472,9 +523,10 @@ def unfollow(cookie, cache, endpoint, uid):
     d = cache.oidUidScreennameCache.objectByUid(
         uid, userNameCache=cache.userCache)
     d.addCallback(lambda o: o.delete(endpoint, tag))
-    # The logged in user may not yet exist in FluidDB.
+    # The logged in user may not yet exist in Fluidinfo.
     d.addErrback(_ignoreHTTPStatus, http.NOT_FOUND)
     return d
+
 
 def friendsIdFetcher(cookie, cache, screenname):
     # Note: only use the friends cache if the user is not protected. That's
@@ -492,6 +544,7 @@ def friendsIdFetcher(cookie, cache, screenname):
     else:
         d = cache.friendsIdCache[screenname]
     return d
+
 
 @defer.inlineCallbacks
 def directAddUser(cache, screenname):
@@ -515,6 +568,7 @@ def directAddUser(cache, screenname):
             raise Exception('%s is already added' % screenname)
         else:
             cache.adderCache.put(screenname, user['friends_count'])
+
 
 @defer.inlineCallbacks
 def bulkAddUsers(cache, screennames):
@@ -542,6 +596,7 @@ def bulkAddUsers(cache, screennames):
                 cache.adderCache.put(screenname, user['friends_count'])
     defer.returnValue(errs)
 
+
 def addExtraTwitterTags(endpoint, userObject, user):
     # Add additional Twitter info tags to the user's object. We do this
     # asynchronously, and all taggings are launched at once (not
@@ -549,21 +604,21 @@ def addExtraTwitterTags(endpoint, userObject, user):
 
     screenname = user['screen_name']
 
-    def _err(failure):
-        log.err('Failed to add %s tag to user %r:' % (tag, screenname))
+    def _err(failure, attr):
+        log.err('Failed to add %s tag to user %r:' % (attr, screenname))
         log.err(failure)
         # Return None
-        
+
     def _done(_):
         log.msg('Added extra tags to user %r.' % screenname)
 
     deferreds = []
-    
+
     for attr, tag in extraTags.iteritems():
         d = userObject.set(endpoint, tag, user[attr])
         d.addErrback(_err, attr)
         deferreds.append(d)
-        
+
     d = defer.DeferredList(deferreds)
     d.addCallback(_done)
     return d

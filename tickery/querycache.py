@@ -18,7 +18,7 @@ from tickery.cacheutils import DumpingCache
 
 
 class QueryCache(DumpingCache):
-    
+
     def load(self, cacheFile):
         data = super(QueryCache, self).load(cacheFile)
         if data is None:
@@ -29,7 +29,7 @@ class QueryCache(DumpingCache):
             self._queries, self._screennameIndex = data
 
     def __str__(self):
-        s = [ '%d queries in cache' % len(self._queries) ]
+        s = ['%d queries in cache' % len(self._queries)]
         for key in sorted(self._queries.keys()):
             s.append('size %4d: %s' % (len(self._queries[key]), key))
         return '\n'.join(s)
@@ -43,7 +43,7 @@ class QueryCache(DumpingCache):
             try:
                 self._screennameIndex[screenname].append(query)
             except KeyError:
-                self._screennameIndex[screenname] = [ query ]
+                self._screennameIndex[screenname] = [query]
         self.clean = False
 
     def invalidate(self, screenname):
@@ -57,7 +57,7 @@ class QueryCache(DumpingCache):
             self.clean = False
         else:
             log.msg('There were no stored results involving %r.' % screenname)
-    
+
     def lookupQueryResult(self, query):
         return self._queries[query]
 

@@ -16,7 +16,7 @@ from tickery.cacheutils import DumpingCache
 
 
 class CookieCache(DumpingCache):
-    
+
     def load(self, cacheFile):
         self._cookies = super(CookieCache, self).load(cacheFile)
         if self._cookies is None:

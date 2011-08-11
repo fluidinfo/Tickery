@@ -12,14 +12,15 @@
 # implied.  See the License for the specific language governing
 # permissions and limitations under the License.
 
-import os, cPickle as pickle
+import os
+import cPickle as pickle
 
 from twisted.python import log
 # xxx: from twisted.internet import task
 
 
 class DumpingCache(object):
-    
+
     def load(self, cacheFile):
         if os.path.exists(cacheFile):
             f = open(cacheFile, 'rb')
@@ -36,7 +37,7 @@ class DumpingCache(object):
         # xxx: d.addCallback(lambda _: self._dump())
         log.msg('Dumping cache initialized. Persisting to %r.' % cacheFile)
         return self._cache
-    
+
     def _dump(self):
         if not self.clean:
             log.msg('Dumping cache to file %r.' % self._cacheFile)

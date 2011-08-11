@@ -19,7 +19,7 @@ from tickery.cacheutils import DumpingCache
 
 
 class FriendsCache(DumpingCache):
-    
+
     def load(self, cacheFile):
         self._friends = super(FriendsCache, self).load(cacheFile)
         if self._friends is None:
@@ -42,7 +42,7 @@ class FriendsCache(DumpingCache):
             return d
 
     def __str__(self):
-        s = [ '%d names in friends cache' % len(self._friends) ]
+        s = ['%d names in friends cache' % len(self._friends)]
         for key in sorted(self._friends.keys()):
             s.append('%s: nFriends=%s' % (key, len(self._friends[key])))
         return '\n'.join(s)

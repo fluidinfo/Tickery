@@ -46,7 +46,7 @@ class DirectAdd(HorizontalPanel):
             id = remote.directAddUser(name, self)
             if id < 0:
                 self.err.setText('oops: could not add')
-            
+
     def onRemoteResponse(self, result, request_info):
         self.update.setEnabled(True)
 
@@ -77,7 +77,7 @@ class BulkDirectAdd(HorizontalPanel):
             id = remote.bulkAddUsers(names, self)
             if id < 0:
                 self.err.setText('oops: could not add')
-            
+
     def onRemoteResponse(self, result, request_info):
         self.update.setEnabled(True)
         self.err.setText('OK, adding.')

@@ -12,7 +12,13 @@
 # implied.  See the License for the specific language governing
 # permissions and limitations under the License.
 
-import urllib, utils, userlist, go, server, text, defaults
+import urllib
+import utils
+import userlist
+import go
+import server
+import text
+import defaults
 from results import ResultHandler
 
 from tickerytab import TickeryTab
@@ -27,11 +33,12 @@ from pyjamas import DOM, Window
 _defaultName1 = 'timoreilly'
 _defaultName2 = 'timbray'
 
+
 class Simple(TickeryTab):
 
     tabName = 'simple'
     textBoxLength = 18
-    
+
     def __init__(self, topPanel):
         TickeryTab.__init__(self, topPanel)
         # Get query names (if they exist) from the request. We don't check
@@ -47,12 +54,12 @@ class Simple(TickeryTab):
             name1 = urllib.unquote_plus(name1)
         else:
             name1 = _defaultName1
-            
+
         if name2:
             name2 = urllib.unquote_plus(name2)
         else:
             name2 = _defaultName2
-        
+
         v1 = VerticalPanel()
         self.name1 = text.TextBoxFocusHighlight(
             Text=name1, MaxLength=self.textBoxLength,
@@ -79,17 +86,17 @@ class Simple(TickeryTab):
         h.add(v2)
         h.add(self.goButton)
         v.add(h)
-        
+
         self.topGrid.setWidget(0, 1, v)
         formatter = self.topGrid.getCellFormatter()
         formatter.setHorizontalAlignment(0, 1, 'left')
 
         self.checkResult = HorizontalPanel()
         self.add(self.checkResult)
-        
+
         self.results = userlist.UserListPanel(self, topPanel)
         self.add(self.results)
-        
+
         # allow keypress ENTER reaction
         self.name1.addKeyboardListener(self)
         self.name2.addKeyboardListener(self)
@@ -170,16 +177,16 @@ class Simple(TickeryTab):
             if id < 0:
                 self.results.add(Label('oops!'))
 
-    def resultsLink(self):        
+    def resultsLink(self):
         name1, name2 = self.getNames()
         d = {
-        'name1' : name1,
-        'name2' : name2,
-        'sort' : userlist._sortKey,
-        'icon' : userlist._iconSize,
-        'tab' : self.tabName,
+        'name1': name1,
+        'name2': name2,
+        'sort': userlist._sortKey,
+        'icon': userlist._iconSize,
+        'tab': self.tabName,
             }
-        
+
         return '%s?%s' % (defaults.TICKERY_URL, urllib.urlencode(d))
 
     def adjustSize(self, width, height):

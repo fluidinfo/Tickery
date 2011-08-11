@@ -13,36 +13,36 @@ class TestBackoffIterator(unittest.TestCase):
         bi = simpleBackoffIterator(now=True, initDelay=9)
         delay = bi.next()
         self.assertEqual(0.0, delay)
-        
+
     def testNotNow(self):
         bi = simpleBackoffIterator(now=False, initDelay=3.0)
         delay = bi.next()
         self.assertNotEqual(0.0, delay)
-        
+
     def testInitDelay(self):
         initDelay = 7
         bi = simpleBackoffIterator(now=False, initDelay=initDelay,
                                    maxDelay=initDelay + 1)
         delay = bi.next()
         self.assertEqual(initDelay, delay)
-        
+
     def testDefaultSettingsEventuallyHalt(self):
         bi = simpleBackoffIterator()
         for delay in bi:
             pass
-        
+
     def testDefaultSettingsNoNegativeDelays(self):
         bi = simpleBackoffIterator()
         for delay in bi:
             self.assertTrue(delay >= 0.0)
-        
+
     def testMaxResults(self):
         maxResults = 12
         bi = simpleBackoffIterator(now=False, maxResults=maxResults)
         for _ in range(maxResults):
             bi.next()
         self.assertRaises(StopIteration, bi.next)
-        
+
     def testConstant(self):
         n = 10
         constant = 5.0
@@ -91,10 +91,10 @@ class InitiallyFailing(object):
         self.succeeded = False
 
     def __call__(self, *args, **kw):
-        # Make sure we're called with the args we're supposed to be called with.
+        # Make sure we're called with args we're supposed to be called with.
         assert self.args == args
         assert self.kw == kw
-        
+
         if self.failCount < self.nFails:
             try:
                 excClass = self.exceptionList[self.failCount]
@@ -112,6 +112,7 @@ class InitiallyFailing(object):
     def assertMaximallyFailed(self):
         assert self.nFails == self.failCount, '%d != %d' % (self.nFails,
                                                             self.failCount)
+
 
 class CallCounter(object):
     """Provide a callable that counts the number of times it's invoked."""
@@ -138,7 +139,7 @@ class ValueErrorThenNameErrorRaiser(object):
         else:
             self.called = True
             raise ValueError()
-        
+
 
 class TestRetryingCall(unittest.TestCase):
     def testSimplestNoFailure(self):
@@ -147,26 +148,28 @@ class TestRetryingCall(unittest.TestCase):
         d = rc.start()
         d.addCallback(lambda r: self.assertEqual(r, result))
         return d
-    
+
     def testSimplestDeferredReturner(self):
         result = 15
         rc = RetryingCall(lambda: defer.succeed(result))
         d = rc.start()
         d.addCallback(lambda r: self.assertEqual(r, result))
         return d
-    
+
     def testSimpleDeferredReturner(self):
         result1 = 15
         result2 = 16
+
         def _ret(result):
             self.assertEqual(result, result1)
             return result2
+
         rc = RetryingCall(lambda: defer.succeed(result1))
         d = rc.start()
         d.addCallback(_ret)
         d.addCallback(lambda r: self.assertEqual(r, result2))
         return d
-    
+
     def testInitiallyFailing0Failures(self):
         f = InitiallyFailing(0)
         rc = RetryingCall(f)
@@ -195,7 +198,7 @@ class TestRetryingCall(unittest.TestCase):
         d = rc.start()
         d.addCallback(lambda r: self.assertEqual(r, (x, y)))
         return d
-    
+
     def testIgnoreRegularException(self):
         def _failureTester(f):
             f.trap(Exception)

@@ -23,18 +23,18 @@ setup(name='tickery',
           # Public (www) files:
           ('%s/tickery/www' % TICKERY_ROOT,
            ['tickery/www/Makefile'] + glob.glob('tickery/www/*.py')),
-          
+
           ('%s/tickery/www/public' % TICKERY_ROOT,
            glob.glob('tickery/www/public/*')),
-          
+
           # Admin files:
           ('%s/tickery/admin' % TICKERY_ROOT,
            ['tickery/admin/Makefile'] + glob.glob('tickery/admin/*.py')),
-          
+
           ('%s/tickery/admin/public' % TICKERY_ROOT,
            glob.glob('tickery/admin/public/*'))
           ],
-      
+
       maintainer='Fluidinfo Inc.',
       maintainer_email='info@fluidinfo.com',
       url='http://fluidinfo.com/')

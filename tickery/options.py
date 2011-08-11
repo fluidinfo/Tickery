@@ -19,18 +19,18 @@ from tickery.www import defaults
 
 class EndpointOptions(usage.Options):
     optParameters = [
-        ['endpoint', None, None, 'The FluidDB endpoint URL.'],
+        ['endpoint', None, None, 'The Fluidinfo endpoint URL.'],
         ]
     optFlags = [
-        ['local', 'L', 'If True use the a local FluidDB'],
-        ['sandbox', 'S', 'If True use the sandbox FluidDB'],
+        ['local', 'L', 'If True use the a local Fluidinfo'],
+        ['sandbox', 'S', 'If True use the sandbox Fluidinfo'],
         ]
 
     def postOptions(self):
         endpointURL = self['endpoint']
         local = self['local']
         sandbox = self['sandbox']
-        
+
         if endpointURL:
             assert not (local or sandbox)
         else:
@@ -41,7 +41,7 @@ class EndpointOptions(usage.Options):
                 else:
                     endpointURL = defaults.SANDBOX_ENDPOINT
             else:
-                endpointURL = defaults.FLUIDDB_ENDPOINT            
+                endpointURL = defaults.FLUIDINFO_ENDPOINT
         if not endpointURL.endswith('/'):
             endpointURL += '/'
         self['endpoint'] = endpointURL

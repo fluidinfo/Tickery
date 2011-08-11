@@ -12,12 +12,13 @@
 # implied.  See the License for the specific language governing
 # permissions and limitations under the License.
 
-import os, functools
+import os
+import functools
 
 from twisted.internet import defer
 from twisted.application import service
 
-from txrdq.rdq import DeferredPool
+from txrdq.pool import DeferredPool
 
 from tickery.usercache import TwitterUserCache
 from tickery.querycache import QueryCache
@@ -36,7 +37,7 @@ class TickeryCache(service.Service):
         # oauthTokenDict is a volatile cache.
         self.oauthTokenDict = {}
         self.extraTwitterTagsPool = DeferredPool()
-        
+
     def startService(self):
         self.loadAllCaches()
 
@@ -44,29 +45,29 @@ class TickeryCache(service.Service):
         service.Service.startService(self)
 
         cacheFile = functools.partial(os.path.join, self.cacheDir)
-        
+
         self.userCache = TwitterUserCache()
         self.userCache.load(cacheFile('users'))
-        
+
         self.oidUidScreennameCache = OidUidScreennameCache(self.endpoint)
         self.oidUidScreennameCache.load(cacheFile('oidUidScreenname'))
-        
+
         self.queryCache = QueryCache()
         self.queryCache.load(cacheFile('queries'))
-        
+
         self.cookieCache = CookieCache()
         self.cookieCache.load(cacheFile('cookies'))
-        
+
         self.adderCache = AdderCache(self, self.queueWidth, self.endpoint)
         self.adderCache.load(cacheFile('adder'))
-        
+
         self.friendsIdCache = FriendsCache()
         self.friendsIdCache.load(cacheFile('friends'))
 
     @defer.inlineCallbacks
     def stopService(self):
         yield self.adderCache.close()
-        yield self.extraTwitterTagsPool.deferUntilEmpty()
+        yield self.extraTwitterTagsPool.notifyWhenEmpty()
         self.userCache.close()
         self.oidUidScreennameCache.close()
         self.queryCache.close()

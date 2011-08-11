@@ -46,7 +46,7 @@ class FriendsLimit(HorizontalPanel):
 class FriendsDisplay(object):
     def __init__(self, sender):
         self.sender = sender
-                 
+
     def onClick(self, sender):
         self.sender.err.setText('')
         self.sender.refresh.setEnabled(False)
@@ -67,7 +67,7 @@ class FriendsDisplay(object):
 class FriendsUpdate(object):
     def __init__(self, sender):
         self.sender = sender
-                 
+
     def onClick(self, sender):
         self.sender.err.setText('')
         value = self.sender.newValue.getText().strip()
@@ -80,7 +80,7 @@ class FriendsUpdate(object):
             id = remote.setFriendsLimit(value, self)
             if id < 0:
                 self.sender.err.setText('oops: could not setFriendsLimit')
-            
+
     def onRemoteResponse(self, result, request_info):
         self.sender.update.setEnabled(True)
         self.sender.value.setText(self.value)

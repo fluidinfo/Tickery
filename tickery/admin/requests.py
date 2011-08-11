@@ -46,7 +46,7 @@ class MaxRequestsLimit(HorizontalPanel):
 class MaxRequestsDisplay(object):
     def __init__(self, sender):
         self.sender = sender
-                 
+
     def onClick(self, sender):
         self.sender.err.setText('')
         self.sender.refresh.setEnabled(False)
@@ -67,7 +67,7 @@ class MaxRequestsDisplay(object):
 class MaxRequestsUpdate(object):
     def __init__(self, sender):
         self.sender = sender
-                 
+
     def onClick(self, sender):
         self.sender.err.setText('')
         value = self.sender.newValue.getText().strip()
@@ -80,7 +80,7 @@ class MaxRequestsUpdate(object):
             id = remote.setMaxRequestsLimit(value, self)
             if id < 0:
                 self.sender.err.setText('oops: could not setMaxRequestsLimit')
-            
+
     def onRemoteResponse(self, result, request_info):
         self.sender.update.setEnabled(True)
         self.sender.value.setText(self.value)

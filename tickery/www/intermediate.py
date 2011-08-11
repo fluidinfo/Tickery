@@ -103,7 +103,7 @@ E.g., <a href=\"%(intq)s@except+or+@and\">@except or @and</a>.
 </p>
 
 """ % {
-    'intq' : '%s/?tab=intermediate&query=' % defaults.TICKERY_URL,
+    'intq': '%s/?tab=intermediate&query=' % defaults.TICKERY_URL,
 }
 
 

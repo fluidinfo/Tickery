@@ -1,3 +1,13 @@
 *.pyc
 *.swp
-docs/_build/*
+doc/_build/*
+tickery/admin/output/
+tickery/admin/*.js
+tickery/www/output/
+tickery/www/*.js
+twisted/plugins/dropin.cache
+pyjamas
+pyjamas-0.7
+distribute-*.tar.gz
+parsetab.py
+pip-log.txt

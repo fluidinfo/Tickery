@@ -30,7 +30,7 @@ class TickeryConsumer(object):
         if secret is None:
             raise Exception('Please set %r in your environment.' %
                             TICKERY_CONSUMER_SECRET_ENV_VAR)
-        
-        self.consumer = oauth.OAuthConsumer(key, secret)    
+
+        self.consumer = oauth.OAuthConsumer(key, secret)
 
 consumer = TickeryConsumer().consumer

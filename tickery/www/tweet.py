@@ -12,7 +12,9 @@
 # implied.  See the License for the specific language governing
 # permissions and limitations under the License.
 
-import server, userlist, text
+import server
+import userlist
+import text
 
 from pyjamas.ui.HTML import HTML
 from pyjamas.ui.Label import Label
@@ -43,16 +45,16 @@ class SimpleTweetPanel(HorizontalPanel):
         self.screennames = screennames
         self.nUsers = nUsers
         self.topPanel = topPanel
-        
+
         self.add(HTML(_title, StyleName='result-detail'))
-        
+
         self.withButton = Button(_withAtText, self, StyleName='with-at-button')
         self.add(self.withButton)
 
         self.withoutButton = Button(_withoutAtText, self,
                                     StyleName='without-at-button')
         self.add(self.withoutButton)
-        
+
         self.link = HTML()
         self.add(self.link)
 
@@ -102,7 +104,7 @@ class TweetEditor(Grid):
         self.topPanel = topPanel
         self.button = Button('Tweet!', self)
         self.count = Label('')
-        
+
         self.setWidget(0, 0, HTML(_instructions))
         self.setWidget(0, 1, self.count)
         self.setWidget(1, 0, self.tweet)
@@ -111,7 +113,7 @@ class TweetEditor(Grid):
         formatter = self.getCellFormatter()
         formatter.setVerticalAlignment(0, 1, 'bottom')
         formatter.setVerticalAlignment(1, 1, 'bottom')
-        
+
         self.setCount()
 
     def onClick(self, sender):
@@ -155,8 +157,8 @@ class TweetEditor(Grid):
         else:
             self.count.setStyleName('tweet-char-count-excessive')
         self.count.setText(str(n))
-        
-        
+
+
 class TweetPopup(DialogBoxModal):
     def __init__(self, identifier, query, nUsers, tabName,
                  preparePanel, topPanel):
@@ -175,7 +177,7 @@ class PrepareTweetButton(HorizontalPanel):
         HorizontalPanel.__init__(self)
         self.button = Button('Compose tweet', self,
                              StyleName='compose-tweet-button')
-        self.add(self.button)        
+        self.add(self.button)
         self.link = HTML()
         self.add(self.link)
         self.popup = TweetPopup(self.__class__.__name__,

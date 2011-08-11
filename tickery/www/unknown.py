@@ -17,7 +17,8 @@ from pyjamas.ui.HTML import HTML
 from pyjamas.ui.Grid import Grid
 from pyjamas.ui.VerticalPanel import VerticalPanel
 
-import utils, go
+import utils
+import go
 
 
 class UserList(VerticalPanel):
@@ -32,24 +33,24 @@ class UserList(VerticalPanel):
                 s.append(name)
         self.add(HTML('<br/>'.join(s), StyleName='userlist-error-text'))
 
-        
+
 class NonexistentUsers(UserList):
     link = False
     msg = "We can't run your query because the following users " \
           "do not seem to exist on Twitter:"
 
-        
+
 class ProtectedUsers(UserList):
     link = True
     msg = "We can't run your query because the following users have " \
           "their details protected on Twitter:"
-    
-        
+
+
 class OtherErrorUsers(UserList):
     link = True
     msg = "Sorry, we ran into a problem trying to handle the following users:"
 
-        
+
 class TooManyFriends(VerticalPanel):
     def __init__(self, names, limit):
         VerticalPanel.__init__(self, Spacing=8, StyleName='userlist-error-box')
@@ -65,7 +66,7 @@ class TooManyFriends(VerticalPanel):
                 utils.screennameToTwitterFriendsLink(name, n)))
         self.add(HTML('<br/>'.join(s), StyleName='userlist-error-text'))
 
-        
+
 class TooManyResults(Label):
     def __init__(self, n, limit):
         Label.__init__(self,
@@ -78,10 +79,11 @@ class TooManyResults(Label):
 
 class UnaddedUsers(VerticalPanel):
     def __init__(self, statusSummary, sender):
-        VerticalPanel.__init__(self, Spacing=10, StyleName='userlist-error-box')
+        VerticalPanel.__init__(self, Spacing=10,
+                               StyleName='userlist-error-box')
         self.add(HTML("We're currently working on users you mentioned",
-                       StyleName='userlist-error-title'))
-        
+                      StyleName='userlist-error-title'))
+
         self.add(HTML(
             """<p>Below is a summary of work already in progress, or
         queued, which must complete before we can run your query. Please
@@ -94,9 +96,9 @@ class UnaddedUsers(VerticalPanel):
         see updated progress.</p>""" %
             (sender.resultsLink(), go.goButtonText),
             StyleName='userlist-error-text'))
-                                                     
+
         nRows = 0
-        
+
         underway = statusSummary['underway']
         nUnderway = len(underway)
         queued = statusSummary['queued']
@@ -104,17 +106,17 @@ class UnaddedUsers(VerticalPanel):
 
         nCols = 4
         width = 200
-        
+
         if nUnderway:
             nRows += nUnderway + 1
         if nQueued:
             nRows += nQueued + 1
-        
+
         g = Grid(nRows, nCols, StyleName='users')
         g.setCellPadding(2)
         cellFormatter = g.getCellFormatter()
         row = 0
-        
+
         if nUnderway:
             g.setHTML(row, 0, 'Users currently being processed&nbsp;')
             cellFormatter.setStyleName(row, 0, 'title-lhs')
@@ -126,20 +128,20 @@ class UnaddedUsers(VerticalPanel):
             cellFormatter.setStyleName(row, 3, 'title')
             cellFormatter.setWidth(row, 3, width)
             row += 1
-            
+
             for u, nFriends, done in underway:
                 cellFormatter.setStyleName(row, 0, 'blank')
                 n = utils.splitthousands(nFriends)
                 g.setHTML(row, 1, utils.screennameToTwitterLink(u))
                 g.setHTML(row, 2, utils.screennameToTwitterFriendsLink(u, n))
                 cellFormatter.setHorizontalAlignment(row, 2, 'right')
-                
+
                 pct = '%d' % int(done * 100.0)
                 left = Label(pct, StyleName='done', Width=int(done * width))
                 g.setWidget(row, 3, left)
-                
+
                 row += 1
-        
+
         if nQueued:
             g.setHTML(row, 0, 'Users queued for processing&nbsp;')
             cellFormatter.setStyleName(row, 0, 'title-lhs')
@@ -150,7 +152,7 @@ class UnaddedUsers(VerticalPanel):
             g.setText(row, 3, 'Queue position')
             cellFormatter.setStyleName(row, 3, 'title')
             row += 1
-            
+
             for u, nFriends, pos in queued:
                 cellFormatter.setStyleName(row, 0, 'blank')
                 n = utils.splitthousands(nFriends)
@@ -160,5 +162,5 @@ class UnaddedUsers(VerticalPanel):
                 g.setText(row, 3, pos)
                 cellFormatter.setHorizontalAlignment(row, 3, 'right')
                 row += 1
-                
+
         self.add(g)

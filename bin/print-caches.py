@@ -16,8 +16,9 @@
 
 from tickery.cache import TickeryCache
 
+
 def printHeader(what):
-    print '\n%s[ %s ]%s' %  ('-' * 5, what, '-' * (70 - len(what)))
+    print '\n%s[ %s ]%s' % ('-' * 5, what, '-' * (70 - len(what)))
 
 
 if __name__ == '__main__':
