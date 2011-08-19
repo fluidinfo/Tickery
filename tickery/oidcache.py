@@ -130,7 +130,8 @@ class OidUidScreennameCache(DumpingCache):
                 if screenname is None:
                     assert userNameCache is not None
                     screenname = yield userNameCache.screennameByUid(uid)
-                o = yield Object.create(self.endpoint, u'@%s' % screenname)
+                o = yield Object.create(self.endpoint,
+                                        u'@%s' % screenname.lower())
                 log.msg('Made new object for Twitter user %r (uid %d).' %
                         (screenname, uid))
                 # TODO: what happens if something goes wrong here?

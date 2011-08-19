@@ -1,10 +1,7 @@
 #!/bin/sh
 
-# This is a script that can start Tickery. We'll use it temporarily while
-# we're still using the Hardy 8.04 machine at tickery.net as the version of
-# upstart on Hardy doesn't allow us to start it via a config file in
-# /etc/init.  It expects several secret password/key values to be set in
-# the environment (see below).
+# This is a script that can start Tickery. It expects several secret
+# password/key values to be set in the environment (see below).
 
 test -d /srv/tickery || {
   cat 2>&1 <<EOF
@@ -39,6 +36,6 @@ TICKERY_USER=tickery
 
 exec /sbin/start-stop-daemon --start --chdir $VIRTUALENV_HOME \
     --chuid $TICKERY_USER --exec $VIRTUALENV_HOME/bin/twistd -- \
-    --pidfile=/srv/tickery/current/var/run/tickery.$$.pid \
-    --logfile=/srv/tickery/current/var/log/tickery.$$.log tickery \
+    --pidfile=/srv/tickery/current/var/run/tickery.pid \
+    --logfile=/srv/tickery/current/var/log/tickery.log tickery \
     --cache /srv/tickery/CACHE
