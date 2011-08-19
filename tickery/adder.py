@@ -147,6 +147,11 @@ class AdderCache(DumpingCache):
             else:
                 user.setState('failed')
                 log.msg('Failed to add %r: %s' % (user.screenname, fail))
+                if hasattr(fail.value, 'response_headers'):
+                    for header in fail.value.response_headers:
+                        if header.startswith('x-fluiddb-'):
+                            print '\t%s: %s' % (
+                                header, fail.value.response_headers[header][0])
 
         log.msg('User %r received from request queue.' % user.screenname)
         user.setState('underway')
