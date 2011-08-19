@@ -62,7 +62,7 @@ class PauseResume(HorizontalPanel):
         id = remote.resume(Resumed(self))
         if id < 0:
             self.err.setText('oops: could not call resume.')
-            
+
     def onRemoteResponse(self, paused, request_info):
         self.refresh.setEnabled(True)
         if paused:
@@ -78,7 +78,7 @@ class PauseResume(HorizontalPanel):
 class Paused(object):
     def __init__(self, sender):
         self.sender = sender
-            
+
     def onRemoteResponse(self, result, request_info):
         self.sender.resume.setEnabled(True)
         self.sender.pause.setEnabled(False)
@@ -91,7 +91,7 @@ class Paused(object):
 class Resumed(object):
     def __init__(self, sender):
         self.sender = sender
-            
+
     def onRemoteResponse(self, result, request_info):
         self.sender.pause.setEnabled(True)
         self.sender.resume.setEnabled(False)

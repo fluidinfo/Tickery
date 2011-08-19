@@ -1,0 +1,5 @@
+bzr+http://bazaar.launchpad.net/~terrycojones/txrdq/trunk#egg=txRDQ
+bzr+http://bazaar.launchpad.net/~txfluiddb-maint/txfluiddb/trunk#egg=txFluidDB
+http://jon.es/other/txJSON-RPC-fluidinfo.tar.gz#egg=txJSON-RPC
+simplejson
+ply

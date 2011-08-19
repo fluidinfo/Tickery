@@ -12,25 +12,15 @@
 # implied.  See the License for the specific language governing
 # permissions and limitations under the License.
 
-import os
-
 from twisted.python import usage
 
 from txfluiddb.client import _HasPath
 
 
-def fluidDBRootPassword():
-    VAR = 'FLUIDDB_ROOT_PASSWORD'
-    try:
-        return os.environ[VAR]
-    except KeyError:
-        raise usage.UsageError('You must set a %s environment variable.' % VAR)
-
-    
-class FluidDBOptions(usage.Options):
+class FluidinfoOptions(usage.Options):
     optParameters = [
-        ['fluiddb-user', None, 'fluiddb', "The system user's name."],
-        ['fluiddb-password', None, None, "The system user's password."],
+        ['fluidinfo-user', None, 'fluidinfo', "The system user's name."],
+        ['fluidinfo-password', None, None, "The system user's password."],
         ]
 
 
@@ -38,13 +28,13 @@ class User(_HasPath):
     def __init__(self, uid, username):
         super(User, self).__init__(username)
         self.uid = uid
-        
+
     @classmethod
     def create(cls, endpoint, username, name, password, email):
         def _parseResponse(response):
             return cls(username, response[u'id'])
-        data = { 'userName' : username, 'name' : name, 
-                 'password' : password, 'email' : email }
+        data = {'userName': username, 'name': name,
+                'password': password, 'email': email}
         d = endpoint.submit(endpoint.getRootURL() + 'users',
                             method='POST', data=data)
         return d.addCallback(_parseResponse)

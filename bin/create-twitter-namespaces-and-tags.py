@@ -38,6 +38,7 @@ def report(result, msg):
     print msg
     return result
 
+
 def ignorePreexistingErrror(failure, msg):
     failure.trap(error.Error)
     if int(failure.value.status) == http.PRECONDITION_FAILED:
@@ -45,9 +46,11 @@ def ignorePreexistingErrror(failure, msg):
     else:
         return failure
 
+
 def addCallbacks(d, msg):
     d.addCallbacks(report, ignorePreexistingErrror,
                    callbackArgs=(msg,), errbackArgs=(msg,))
+
 
 @defer.inlineCallbacks
 def create(endpoint):
@@ -57,7 +60,7 @@ def create(endpoint):
     addCallbacks(d, 'Created friends namespace %r.' %
                  TWITTER_FRIENDS_NAMESPACE_NAME)
     yield d
-    
+
     d = ns.createChild(endpoint, TWITTER_FOLLOWERS_NAMESPACE_NAME,
                        'Holds tags for users to indicate followers.')
     addCallbacks(d, 'Created followers namespace %r.' %
@@ -77,30 +80,30 @@ def create(endpoint):
         (TWITTER_ID_TAG_NAME, 'Twitter user id.'),
         (TWITTER_SCREENNAME_TAG_NAME, 'Twitter screen name.'),
         (TWITTER_UPDATED_AT_TAG_NAME,
-         'Time (in seconds) of last update of this user in FluidDB.'),
+         'Time (in seconds) of last update of this user in Fluidinfo.'),
         (TWITTER_N_FRIENDS_TAG_NAME, 'Number of friends of a Twitter user.'),
         (TWITTER_N_FOLLOWERS_TAG_NAME,
          'Number of followers of a Twitter user.'),
         (TWITTER_N_STATUSES_TAG_NAME,
          'Number of status updates of a Twitter user.')):
-        
+
         d = userNs.createTag(endpoint, name, desc, False)
         addCallbacks(d, 'Created tag %r.' % name)
         yield d
-    
+
 
 if __name__ == '__main__':
 
     def nok(failure):
         print 'Failed:', failure
         if hasattr(failure.value, 'response_headers'):
-            foundFluidDBHeader = False
+            foundFluidinfoHeader = False
             for header in failure.value.response_headers:
                 if header.startswith('x-fluiddb-'):
-                    foundFluidDBHeader = True
+                    foundFluidinfoHeader = True
                     print '\t%s: %s' % (
                         header, failure.value.response_headers[header][0])
-            if not foundFluidDBHeader:
+            if not foundFluidinfoHeader:
                 print 'Headers: %r' % (failure.value.response_headers)
         else:
             return failure
@@ -114,6 +117,6 @@ if __name__ == '__main__':
     endpoint = Endpoint(baseURL=options['endpoint'], creds=creds)
     d = create(endpoint)
     d.addCallback(report, 'Done.')
-    d.addErrback(nok)    
+    d.addErrback(nok)
     d.addBoth(stop)
     reactor.run()

@@ -1,0 +1,32 @@
+description "Start and stop the Tickery webapp"
+
+start on started network
+stop on stopping network
+stop on starting shutdown
+
+# The following variables must all be in the environment for Tickery
+# to function properly:
+#
+#    TICKERY_CONSUMER_KEY
+#    TICKERY_CONSUMER_SECRET
+#    FLUIDINFO_TWITTER_PASSWORD
+#
+# Do not put their values into this file, as it is hosted publicly (on
+# Launchpad).
+
+env VIRTUALENV_HOME=/srv/tickery/current
+env TICKERY_USER=tickery
+
+console output
+
+script
+. $VIRTUALENV_HOME/bin/activate
+exec /sbin/start-stop-daemon --start --chdir $VIRTUALENV_HOME \
+    --chuid $TICKERY_USER --exec $VIRTUALENV_HOME/bin/twistd -- \
+    --pidfile=/srv/tickery/current/var/run/tickery.$$.pid \
+    --logfile=/srv/tickery/current/var/log/tickery.$$.log tickery \
+    --cache /srv/tickery/CACHE
+
+end script
+
+respawn

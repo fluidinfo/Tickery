@@ -23,13 +23,16 @@ from pyjamas import DOM
 
 modal_popups = {}
 
+
 def ModalPopupActive(title):
-    return modal_popups.has_key(title)
+    return title in modal_popups
+
 
 def ModalPopupCloseAll():
     while len(modal_popups) > 0:
         k = modal_popups.keys()[0]
         modal_popups[k].hide()
+
 
 class DialogBoxModal(PopupPanel):
     def __init__(self, identifier, autoHide=None, modal=False, rootpanel=None):
@@ -43,15 +46,15 @@ class DialogBoxModal(PopupPanel):
         self.dragStartX = 0
         self.dragStartY = 0
         self.panel = FlexTable()
-        
+
         self.closeButton = Image('cancel.png')
         self.closeButton.addClickListener(self)
         dock = DockPanel()
         dock.setSpacing(0)
-        
+
         dock.add(self.closeButton, DockPanel.EAST)
         dock.add(self.caption, DockPanel.WEST)
-        
+
         dock.setCellHorizontalAlignment(self.closeButton,
                                         HasAlignment.ALIGN_RIGHT)
         dock.setCellHorizontalAlignment(self.caption, HasAlignment.ALIGN_LEFT)
@@ -146,15 +149,15 @@ class DialogBoxModal(PopupPanel):
             top = 0
 
         element = self.getElement()
-        DOM.setStyleAttribute(element, 'left', '%dpx' % left )
+        DOM.setStyleAttribute(element, 'left', '%dpx' % left)
         DOM.setStyleAttribute(element, 'top', '%dpx' % top)
 
     def show(self):
         if self.showing:
             return
 
-        if modal_popups.has_key(self.identifier) and \
-           modal_popups[self.identifier] != self:
+        if (self.identifier in modal_popups and
+            modal_popups[self.identifier] != self):
             return
         modal_popups[self.identifier] = self
 
@@ -164,7 +167,7 @@ class DialogBoxModal(PopupPanel):
         if not self.showing:
             return
 
-        if modal_popups.has_key(self.identifier):
+        if self.identifier in modal_popups:
             del modal_popups[self.identifier]
 
         PopupPanel.hide(self)
@@ -185,7 +188,7 @@ class DialogBoxModal(PopupPanel):
 class PopupFrame(DialogBoxModal):
 
     def __init__(self, identifier, title, iframe):
-        if modal_popups.has_key(identifier):
+        if identifier in modal_popups:
             return
         modal_popups[identifier] = self
 
@@ -197,14 +200,14 @@ class PopupFrame(DialogBoxModal):
         #closeButton = Button('Close', self)
         #msg = HTML('<center>IFRAME:</center>', True)
         self.iframe.setStyleName('gwt-DialogFrame')
-        
+
         self.dock = DockPanel()
         self.dock.setSpacing(4)
-        
+
         #dock.add(closeButton, DockPanel.SOUTH)
         #dock.add(msg, DockPanel.NORTH)
         self.dock.add(self.iframe, DockPanel.CENTER)
-        
+
         #dock.setCellHorizontalAlignment(closeButton, HasAlignment.ALIGN_RIGHT)
         self.dock.setCellWidth(self.iframe, '100%')
         self.dock.setWidth('100%')
@@ -219,7 +222,7 @@ class PopupFrame(DialogBoxModal):
         self.hide()
 
     def set_width(self, width):
-        self.iframe.setWidth('%dpx' % width) 
+        self.iframe.setWidth('%dpx' % width)
 
     def set_height(self, height):
         self.iframe.setHeight('%dpx' % height)

@@ -14,16 +14,24 @@
 
 import ply.lex as lex
 import ply.yacc as yacc
-import re, sys
+import re
 
-class QueryError(Exception): pass
-class UnparseableError(QueryError): pass
+
+class QueryError(Exception):
+    pass
+
+
+class UnparseableError(QueryError):
+    pass
+
 
 class TokenError(QueryError):
+
     def __init__(self, t):
         Exception.__init__(self)
         self.value = t.value
         self.offset = t.lexpos
+
 
 class QueryLexer(object):
 
@@ -44,14 +52,14 @@ class QueryLexer(object):
 
     reserved = (u'and', u'or', u'except')
 
-    t_LPAREN  = '\('
-    t_RPAREN  = '\)'
+    t_LPAREN = '\('
+    t_RPAREN = '\)'
 
     def t_EXCEPTSYM(self, t):
         r'-'
         t.value = 'except'
         return t
- 
+
     def t_ORSYM(self, t):
         r'\|'
         t.value = 'or'
@@ -81,7 +89,7 @@ class QueryLexer(object):
             raise TokenError(t)
         else:
             raise Exception(t)
-    
+
     # Build the lexer
     def build(self, **kwargs):
         self.lexer = lex.lex(reflags=re.UNICODE, object=self, **kwargs)
@@ -92,7 +100,7 @@ class Node(object):
     PAREN = 0
     BINOP = 1
     SCREENNAME = 2
-    
+
     def __init__(self, type, left, right=None, detail=None):
         self.type = type
         self.left = left
@@ -166,11 +174,7 @@ class ASTBuilder(object):
         self.lexer = QueryLexer()
         self.lexer.build()
         self.parser = QueryParser(self.lexer.tokens)
-        if sys.platform.startswith('win'):
-            tmpDir = '.'
-        else:
-            tmpDir = '/tmp'
-        self.parser.build(module=self.parser, debug=False, outputdir=tmpDir)
+        self.parser.build(module=self.parser, debug=False, outputdir='.')
 
     def build(self, query):
         try:
@@ -178,8 +182,9 @@ class ASTBuilder(object):
         except RuntimeError:
             raise UnparseableError()
 
+
 def queryTreeToString(queryTree, fdbUsername, fdbNamespace):
-    """Return a query string that can be sent to FluidDB. Note that we turn
+    """Return a query string that can be sent to Fluidinfo. Note that we turn
     all screennames into lowercase in the complete tag names. That's
     because that's the way we create the tags.
     """
@@ -202,6 +207,7 @@ def queryTreeToString(queryTree, fdbUsername, fdbNamespace):
             [fdbUsername, fdbNamespace, screenname.lower()])
     else:
         raise Exception('WTF? Node type is %r' % (nodeType,))
+
 
 def queryTreeExtractScreennames(queryTree, screennames):
     """Pull all the screennames out of a query tree. Do this in a

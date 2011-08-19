@@ -1,6 +1,5 @@
 from twisted.trial import unittest
 from twisted.python import log
-from twisted.internet import defer
 
 from tickery.query import ASTBuilder, TokenError, UnparseableError
 
@@ -8,7 +7,7 @@ from tickery.query import ASTBuilder, TokenError, UnparseableError
 class TestParse(unittest.TestCase):
     def setUp(self):
         self.ast = ASTBuilder()
-        
+
     def _simpleCorrectCheck(self, query):
         try:
             p = self.ast.build(query)
@@ -16,14 +15,14 @@ class TestParse(unittest.TestCase):
             log.err('Token error on query %r: text=%r, offset=%d' %
                     (query, t.value, t.offset))
             raise
-        except Exception, e:
+        except Exception:
             log.err('Exception with expected correct query %r' % query)
             raise
         else:
             q = query.replace('&', 'and').replace('|', 'or').\
                 replace('-', 'except').replace('@', '')
             self.assertEqual(str(p), q)
-        
+
     def _simpleTokenErrorCheck(self, query, value, offset):
         try:
             p = self.ast.build(query)
@@ -33,15 +32,15 @@ class TestParse(unittest.TestCase):
         else:
             self.fail('Expected a ParseError on %r at offset %d in %r. Got %r'
                       % (value, offset, query, p))
-        
+
     def _simpleUnparseableCheck(self, query):
         try:
-            p = self.ast.build(query)
+            self.ast.build(query)
         except UnparseableError:
             pass
         else:
             self.fail('Expected an UnparseableError on query %r.' % query)
-        
+
     def testSimpleCorrectQueries(self):
         for q in ('romeo',
                   '@juliet',
@@ -61,7 +60,7 @@ class TestParse(unittest.TestCase):
                   '(romeo or juliet) or malvolio',
                   'romeo and @juliet'):
             self._simpleCorrectCheck(q)
-        
+
     def testSimpleTokenErrors(self):
         for query, value, offset in (
             (')', ')', 0),
@@ -70,11 +69,9 @@ class TestParse(unittest.TestCase):
             ('(xxx=yyy)', '=', 4),
             ):
             self._simpleTokenErrorCheck(query, value, offset)
-            
-        
+
     def testSimpleUnparseableErrors(self):
         for query in ('',
                       '(',
                       ):
             self._simpleUnparseableCheck(query)
-            

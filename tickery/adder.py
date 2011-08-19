@@ -12,8 +12,6 @@
 # implied.  See the License for the specific language governing
 # permissions and limitations under the License.
 
-import time
-
 from operator import attrgetter
 
 from twisted.internet import defer
@@ -29,13 +27,13 @@ class User(object):
     _states = ('queued', 'underway', 'added', 'canceled', 'failed')
 
     _illegalTransitions = {
-        'queued'    : ('added', 'failed'),
-        'underway'  : ('queued',),
-        'added'     : ('queued', 'underway', 'canceled', 'failed'),
-        'canceled' : ('underway', 'added', 'failed'),
-        'failed'    : ('underway', 'added'),
+        'queued': ('added', 'failed'),
+        'underway': ('queued',),
+        'added': ('queued', 'underway', 'canceled', 'failed'),
+        'canceled': ('underway', 'added', 'failed'),
+        'failed': ('underway', 'added'),
         }
-    
+
     def __init__(self, screenname, nFriends):
         self.screenname = screenname
         self.nFriends = nFriends
@@ -43,8 +41,6 @@ class User(object):
 
     def reset(self):
         self.state = 'queued'
-        self.queuedAt = time.time()
-        self.failureCount = 0
 
     def setState(self, newState):
         currentState = self.state
@@ -58,21 +54,6 @@ class User(object):
                     log.msg('Logic error? %r is already in state %r.' %
                             (screenname, newState))
                 else:
-                    if newState == 'queued':
-                        self.queuedAt = time.time()
-                    elif newState == 'underway':
-                        now = time.time()
-                        log.msg('User %r was queued for %.2f seconds.' %
-                                (screenname, now - self.queuedAt))
-                        self.underwayAt = now
-                    elif newState == 'added':
-                        log.msg('User %r was underway for %.2f seconds.' %
-                                (screenname, time.time() - self.underwayAt))
-                    elif newState == 'failed':
-                        self.failureCount += 1
-                        log.msg('%r failed. Failure count = %d' %
-                                (screenname, self.failureCount))
-
                     log.msg('Adder: %r state change: %r -> %r.' %
                             (screenname, currentState, newState))
                     self.state = newState
@@ -81,14 +62,15 @@ class User(object):
 
     def canceled(self):
         return self.state == 'canceled'
-            
+
     def __str__(self):
         return ('%-16s state=%s nFriends=%d'
                 % (self.screenname, self.state, self.nFriends))
-        
+
     def __repr__(self):
         return '<%s screenname=%r state=%r nFriends=%d>' % (
-            self.__class__.__name__, self.screenname, self.state, self.nFriends)
+            self.__class__.__name__, self.screenname, self.state,
+            self.nFriends)
 
 
 class AdderCache(DumpingCache):
@@ -118,7 +100,8 @@ class AdderCache(DumpingCache):
                     log.msg('Restoring %r (previous state %r)' %
                             (user.screenname, user.state))
                     user.reset()
-                    self.rdq.put(user)
+                    d = self.rdq.put(user)
+                    d.addErrback(self._reportCancelled, user.screenname)
                     self.clean = False
             else:
                 log.msg('Not restoring formerly queued names.')
@@ -130,7 +113,7 @@ class AdderCache(DumpingCache):
                     self.clean = False
 
     def __str__(self):
-        s = [ '%d users in adder cache' % len(self.users) ]
+        s = ['%d users in adder cache' % len(self.users)]
         for key in sorted(self.users.keys()):
             s.append(str(self.users[key]))
         return '\n'.join(s)
@@ -146,13 +129,15 @@ class AdderCache(DumpingCache):
             self.users[screennameLower] = user
         log.msg('Adding screenname %r to request queue.' % screenname)
         self.clean = False
-        self.rdq.put(user)
+        d = self.rdq.put(user)
+        d.addErrback(self._reportCancelled, screenname)
 
     def _addUser(self, user):
         def _added(result):
             user.setState('added')
             self.clean = False
             return result
+
         def _failed(fail):
             self.clean = False
             if fail.check(ftwitter.Canceled):
@@ -162,11 +147,12 @@ class AdderCache(DumpingCache):
             else:
                 user.setState('failed')
                 log.msg('Failed to add %r: %s' % (user.screenname, fail))
+
         log.msg('User %r received from request queue.' % user.screenname)
         user.setState('underway')
         d = ftwitter.addUserByScreenname(self.cache, self.endpoint, user)
         d.addCallbacks(_added, _failed)
-        d.addErrback(log.err)        
+        d.addErrback(log.err)
         return d
 
     def cancel(self, screenname):
@@ -176,30 +162,21 @@ class AdderCache(DumpingCache):
         except KeyError:
             raise Exception('Cannot cancel unknown user %r.' % screenname)
         else:
-            if user.state == 'underway':
-                for item in self.rdq.underway():
-                    if item.job.screenname == screenname:
-                        log.msg('Cancelling underway %r addition.' % screenname)
-                        item.cancel()
-                        user.setState('canceled')
-                        break
-                else:
-                    raise Exception('Could not find %r in underway list.' %
-                                    screenname)
-            elif user.state == 'queued':
-                queued = self.rdq.pending()
-                for i, u in enumerate(queued):
+            if user.state == 'underway' or user.state == 'queued':
+                for job in self.rdq.underway() + self.rdq.pending():
+                    u = job.jobarg
                     if u.screenname == screenname:
-                        del queued[i]
+                        log.msg('Cancelling %s %r addition.' %
+                                (user.state, screenname))
+                        job.cancel()
                         user.setState('canceled')
-                        log.msg('Canceled queued %r addition.' % screenname)
                         break
                 else:
-                    raise Exception('Could not find %r in queued list.' %
-                                    screenname)
+                    raise Exception('Could not find %r in underway '
+                                    'or pending lists.' % screenname)
             else:
                 user.setState('canceled')
-                
+
     def added(self, screenname):
         try:
             user = self.users[screenname.lower()]
@@ -213,9 +190,9 @@ class AdderCache(DumpingCache):
 
     def statusSummary(self, screennames):
         position = {}
-        for i, user in enumerate(self.rdq.pending()):
+        for i, user in enumerate(
+            [job.jobarg for job in self.rdq.pending()]):
             position[user.screenname.lower()] = i
-        log.msg('position dict is %r' % (position,))
         queued = []
         underway = []
         added = []
@@ -230,7 +207,7 @@ class AdderCache(DumpingCache):
             else:
                 log.msg('user: %s' % user)
                 state = user.state
-                
+
                 if state == 'queued':
                     try:
                         pos = position[screenname.lower()]
@@ -252,16 +229,16 @@ class AdderCache(DumpingCache):
                 else:
                     log.msg('ERROR: User %r is in an unknown state: %r' %
                             (screenname, state))
-                    
+
         return {
-            'queued' : queued,
-            'underway' : underway,
-            'added' : added, # NB: 'added' is referred to in ftwitter.py
-            'failed' : failed,
-            'canceled' : canceled,
-            'unknown' : unknown,
+            'queued': queued,
+            'underway': underway,
+            'added': added,  # NB: 'added' is referred to in ftwitter.py
+            'failed': failed,
+            'canceled': canceled,
+            'unknown': unknown,
             }
-    
+
     @defer.inlineCallbacks
     def close(self):
         pending = yield self.rdq.stop()
@@ -269,3 +246,10 @@ class AdderCache(DumpingCache):
             log.msg('Pending user additions canceled: %r' %
                     [p.screenname for p in pending])
         super(AdderCache, self).close()
+
+    def _reportCancelled(self, fail, screenname):
+        """
+        A user addition was cancelled. Log it and absorb the failure.
+        """
+        fail.trap(defer.CancelledError)
+        log.msg('Addition of user %r cancelled.' % screenname)

@@ -44,7 +44,7 @@ class Cancel(HorizontalPanel):
             id = remote.cancel(name, self)
             if id < 0:
                 self.err.setText('oops: could not cancel')
-            
+
     def onRemoteResponse(self, result, request_info):
         self.cancel.setEnabled(True)
         self.name.setText('')

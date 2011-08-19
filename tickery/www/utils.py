@@ -14,18 +14,23 @@
 
 import urllib
 
+
 def screennameToTwitterURL(s):
     return 'http://twitter.com/%s' % urllib.quote(s)
+
 
 def screennameToTwitterLink(s, text=None):
     text = text or s
     return '<a href="%s">%s</a>' % (screennameToTwitterURL(s), text)
 
+
 def screennameToTwitterFriendsLink(s, text):
     return '<a href="%s/following">%s</a>' % (screennameToTwitterURL(s), text)
 
+
 def screennameToTwitterFollowersLink(s, text):
     return '<a href="%s/followers">%s</a>' % (screennameToTwitterURL(s), text)
+
 
 def splitthousands(n, sep=','):
     # From http://code.activestate.com/recipes/498181/

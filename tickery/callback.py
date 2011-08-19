@@ -12,11 +12,10 @@
 # implied.  See the License for the specific language governing
 # permissions and limitations under the License.
 
-import sys, uuid
-
-if sys.hexversion >= 0x20600f0:
+import uuid
+try:
     import json
-else:
+except ImportError:
     import simplejson as json
 
 from twisted.python import log
@@ -35,7 +34,7 @@ class Callback(resource.Resource):
         self.cache = cache
         self.domain = defaults.TICKERY_DOMAIN
         self.redirectURL = defaults.TICKERY_URL
-    
+
     def render_GET(self, request):
         # The cookie cache is actually only available once the cache
         # service has started. But that should happen before we get any

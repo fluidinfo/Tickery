@@ -12,7 +12,12 @@
 # implied.  See the License for the specific language governing
 # permissions and limitations under the License.
 
-import toppanel, simple, intermediate, advanced, about, login
+import toppanel
+import simple
+import intermediate
+import advanced
+import about
+import login
 
 from pyjamas.ui.TabPanel import TabPanel
 from pyjamas.ui.HTML import HTML
@@ -28,18 +33,18 @@ class Tabs(TabPanel):
         self.intermediate = intermediate.Intermediate(topPanel)
         self.advanced = advanced.Advanced(topPanel)
         self.about = about.About(topPanel)
-        
+
         self.add(self.simple, 'Simple')
         self.add(self.intermediate, 'Intermediate')
         self.add(self.advanced, 'Advanced')
         self.add(self.about, 'About')
         self.add(HTML('&nbsp;'), None)
         self.add(HTML('&nbsp'), loginPanel)
-        
+
     def setDefaultTab(self):
         args = Window.getLocation().getSearchDict()
         wantedTab = args.get('tab', self.simple.tabName).lower()
-            
+
         if wantedTab == self.intermediate.tabName:
             self.selectTab(1)
         elif wantedTab == self.advanced.tabName:

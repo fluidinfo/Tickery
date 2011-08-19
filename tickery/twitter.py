@@ -12,7 +12,13 @@
 # implied.  See the License for the specific language governing
 # permissions and limitations under the License.
 
-import sys, urllib, functools, time
+import functools
+try:
+    import json
+except ImportError:
+    import simplejson as json
+import time
+import urllib
 
 from twisted.internet import defer
 from twisted.internet.error import ConnectionLost
@@ -22,15 +28,9 @@ from twisted.python import log, failure
 from tickery.looper import RetryingCall
 from tickery.www import defaults
 from tickery import oauth, consumer, signature, version, error as terror
-    
-if sys.hexversion >= 0x20600f0:
-    import json
-else:
-    import simplejson as json
-    
-TWITTER_URL = 'http://twitter.com'
 
 # OAuth URLs
+TWITTER_URL = 'http://twitter.com'
 REQUEST_TOKEN_URL = TWITTER_URL + '/oauth/request_token'
 AUTHORIZATION_URL = TWITTER_URL + '/oauth/authorize'
 ACCESS_TOKEN_URL = TWITTER_URL + '/oauth/access_token'
@@ -46,21 +46,20 @@ okErrs = (http.INTERNAL_SERVER_ERROR, http.BAD_GATEWAY,
           http.SERVICE_UNAVAILABLE, http.GATEWAY_TIMEOUT)
 
 POSTHeaders = {
-    'Content-Type' : 'application/x-www-form-urlencoded; charset=utf-8',
-    'X-Twitter-Client' : 'Tickery',
-    'X-Twitter-Client-Version' : version.version,
-    'X-Twitter-Client-URL' : defaults.TICKERY_URL,
+    'Content-Type': 'application/x-www-form-urlencoded; charset=utf-8',
+    'X-Twitter-Client': 'Tickery',
+    'X-Twitter-Client-Version': version.version,
+    'X-Twitter-Client-URL': defaults.TICKERY_URL,
     }
 
 
-
 class _Fetcher(object):
-    baseURL = TWITTER_URL + '/'
-    URITemplate = None # Override in subclass.
-    dataKey = None # Override in subclass.
+    baseURL = TWITTER_API_URL + '/'
+    URITemplate = None  # Override in subclass.
+    dataKey = None  # Override in subclass.
     headers = {}
     maxErrs = 10
-    
+
     def __init__(self, name, token=None):
         assert self.baseURL.endswith('/')
         self.start = time.time()
@@ -69,7 +68,7 @@ class _Fetcher(object):
         self.nextCursor = -1
         self.deferred = defer.Deferred()
         self.URL = self.baseURL + (
-            self.URITemplate % { 'name' : urllib.quote(name.encode('utf-8'))})
+            self.URITemplate % {'name': urllib.quote(name.encode('utf-8'))})
         self.token = token
 
     def _reportElapsed(self, result):
@@ -86,7 +85,7 @@ class _Fetcher(object):
             self.fetch()
         else:
             self.deferred.errback(fail)
-        
+
     def _parse(self, result):
         try:
             data = json.loads(result)
@@ -96,7 +95,7 @@ class _Fetcher(object):
             self.deferred.errback()
         else:
             self.fetch()
-            
+
     def _deDup(self):
         raise NotImplementedError('Override _deDup in subclasses.')
 
@@ -111,7 +110,7 @@ class _Fetcher(object):
                 oaRequest.sign_request(
                     signature.hmac_sha1, consumer.consumer, self.token)
                 headers.update(oaRequest.to_header())
-    
+
             d = client.getPage(url, headers=headers)
             d.addBoth(self._reportElapsed)
             d.addCallback(self._parse)
@@ -123,7 +122,7 @@ class _Fetcher(object):
 
 class _FriendsOrFollowersFetcher(_Fetcher):
     dataKey = u'users'
-    
+
     def _deDup(self):
         #  The 'seen' set is to avoid duplicates.
         seen = set()
@@ -138,7 +137,7 @@ class _FriendsOrFollowersFetcher(_Fetcher):
 
 class _IdFetcher(_Fetcher):
     dataKey = u'ids'
-    
+
     def _deDup(self):
         # Keep the ids in the order we received them. The 'seen' set is to
         # avoid duplicates.
@@ -170,7 +169,7 @@ class FollowersIdFetcher(_IdFetcher):
 class AllowOne404Tester(object):
     def __init__(self):
         self.seen404 = False
-        
+
     def test(self, fail):
         # Don't return a result in order to ignore a fail that should
         # be retried.
@@ -185,22 +184,27 @@ class AllowOne404Tester(object):
             elif status not in okErrs:
                 return fail
 
+
 def userByScreenname(screenname):
-    r = RetryingCall(client.getPage,
-                     '%s/users/show.json?screen_name=%s' %
-                     (TWITTER_URL, urllib.quote(screenname.encode('utf-8'))))
+    r = RetryingCall(
+        client.getPage,
+        '%s/users/show.json?screen_name=%s' %
+        (TWITTER_API_URL, urllib.quote(screenname.encode('utf-8'))))
     tester = AllowOne404Tester()
     d = r.start(failureTester=tester.test)
     d.addCallback(lambda j: json.loads(j))
     return d
 
+
 def userById(uid):
-    r = RetryingCall(client.getPage,
-                     '%s/users/show.json?user_id=%s' % (TWITTER_URL, uid))
+    r = RetryingCall(
+        client.getPage,
+        '%s/users/show.json?user_id=%s' % (TWITTER_API_URL, uid))
     tester = AllowOne404Tester()
     d = r.start(failureTester=tester.test)
     d.addCallback(lambda j: json.loads(j))
     return d
+
 
 def _urlencodeDict(d):
     result = []
@@ -209,6 +213,7 @@ def _urlencodeDict(d):
                                  urllib.quote(v.encode("utf-8"))))
     return '&'.join(result)
 
+
 def updateStatus(status, cookie, cookieDict):
     log.msg('Sending tweet %r' % status)
     try:
@@ -216,8 +221,8 @@ def updateStatus(status, cookie, cookieDict):
     except KeyError:
         log.err('updateStatus: Could not find cookie' % cookie)
         return defer.fail(terror.NoSuchCookie())
-    
-    parameters = { 'status' : status }
+
+    parameters = {'status': status}
     oaRequest = oauth.OAuthRequest.from_consumer_and_token(
         consumer.consumer, token=accessToken, parameters=parameters,
         http_url=UPDATE_STATUS_URL, http_method='POST')
@@ -225,7 +230,7 @@ def updateStatus(status, cookie, cookieDict):
         signature.hmac_sha1, consumer.consumer, accessToken)
     headers = POSTHeaders.copy()
     headers.update(oaRequest.to_header())
-    
+
     # r = RetryingCall(client.getPage, UPDATE_STATUS_URL, method='POST',
     # headers=headers, postdata=_urlencodeDict(parameters))
     # d = r.start()
@@ -234,20 +239,24 @@ def updateStatus(status, cookie, cookieDict):
     d.addCallback(lambda j: json.loads(j))
     return d
 
+
 def statusURLFromUpdateResponse(response):
     'Response is the JSON returned by a statuses/update.json API call.'
     return '%s/%s/status/%s' % (
-        TWITTER_URL,
+        TWITTER_API_URL,
         urllib.quote(response[u'user'][u'screen_name'].encode('utf-8')),
         response[u'id'])
+
 
 def _updateUserCache_cb(user, cache):
     cache.userCache.add(user)
     return user
 
+
 def _invalidateResultCache_cb(result, cache, screenname):
     cache.queryCache.invalidateQueriesForScreenname(screenname)
     return result
+
 
 def _followOrUnfollow(follow, cookie, cache, uid):
     try:
@@ -261,7 +270,7 @@ def _followOrUnfollow(follow, cookie, cache, uid):
     else:
         url = UNFOLLOW_URL
 
-    parameters = { 'user_id' : str(uid) }
+    parameters = {'user_id': str(uid)}
     oaRequest = oauth.OAuthRequest.from_consumer_and_token(
         consumer.consumer, token=accessToken, parameters=parameters,
         http_url=url, http_method='POST')
@@ -269,7 +278,7 @@ def _followOrUnfollow(follow, cookie, cache, uid):
         signature.hmac_sha1, consumer.consumer, accessToken)
     headers = POSTHeaders.copy()
     headers.update(oaRequest.to_header())
-    
+
     # r = RetryingCall(client.getPage, UPDATE_STATUS_URL, method='POST',
     # headers=headers, postdata=_urlencodeDict(parameters))
     # d = r.start()

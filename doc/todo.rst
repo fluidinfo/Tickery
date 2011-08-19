@@ -19,14 +19,14 @@ Additional features
 * Make status window auto-update
 * Canonicalize some queries to improve cache hit ratio.
 * Set a timer to periodically update # of users tracked by Tickery.
-* Add a button to allow a user to update their Twitter details in FluidDB.
+* Add a button to allow a user to update their Twitter details in Fluidinfo.
   (i.e., we spider them, update their followers etc)
-* Add a refreshFromFluidDB method to the caches that can use it.
+* Add a refreshFromFluidinfo method to the caches that can use it.
 * The cache should expire things. Switch to memcached?
 * Need to re-spider users and refresh/update/expire other cache info.
 * Add twitter.com/SUL tags.
-* Requests to twitter (and FluidDB?) should have timeouts.
-* Add an offline mode that only works on cached data in case FluidDB 
+* Requests to twitter (and Fluidinfo?) should have timeouts.
+* Add an offline mode that only works on cached data in case Fluidinfo 
   or Twitter are down/inaccessible. Set this on/off on the admin page.
 * What do we do when a user changes from public to protected?
 * Setting the visible limit on the simple tab text boxes doesn't work too well.
@@ -66,8 +66,8 @@ Admin interface improvements
 * Add the ability to toggle noisy logging.
 * Make admin interface auto-update?
 * Allow us to act on the cache.
-* Allow us to rebuild or refresh from FluidDB.
-* Ability to remove users from FluidDB?
+* Allow us to rebuild or refresh from Fluidinfo.
+* Ability to remove users from Fluidinfo?
 * Shows usage stats.
 * Should be able to send a HUP to Tickery to have caches dumped.
 

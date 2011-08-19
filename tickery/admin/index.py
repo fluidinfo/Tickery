@@ -18,8 +18,16 @@ from pyjamas.ui.VerticalPanel import VerticalPanel
 from pyjamas.ui.Label import Label
 from pyjamas.ui.Image import Image
 
-import width, size, friends, results, directadd, pause
-import underway, queued, requests, cancel
+import width
+import size
+import friends
+import results
+import directadd
+import pause
+import underway
+import queued
+import requests
+import cancel
 
 
 class Admin(VerticalPanel):
@@ -28,7 +36,7 @@ class Admin(VerticalPanel):
         self.setWidth('100%')
         self.add(Image('tickery.png'))
         self.add(Label('Welcome, root user.', StyleName='title'))
-        
+
         self.add(width.QueueWidth())
         self.add(size.QueueSize())
         self.add(requests.MaxRequestsLimit())

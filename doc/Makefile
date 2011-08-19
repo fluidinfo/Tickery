@@ -9,7 +9,7 @@ PAPEROPT_letter = -D latex_paper_size=letter
 ALLSPHINXOPTS   = -d _build/doctrees $(PAPEROPT_$(PAPER)) $(SPHINXOPTS) .
 
 .PHONY: help html dirhtml pickle json htmlhelp qthelp latex changes \
-        linkcheck doctest clobber all
+        linkcheck doctest clean all
 
 all: html
 
@@ -26,7 +26,7 @@ help:
 	@echo "  linkcheck to check all external links for integrity"
 	@echo "  doctest   to run all doctests embedded in the documentation (if enabled)"
 
-clobber:
+clean:
 	-rm -rf _build
 
 html:
@@ -60,9 +60,9 @@ qthelp:
 	@echo
 	@echo "Build finished; now you can run "qcollectiongenerator" with the" \
 	      ".qhcp project file in _build/qthelp, like this:"
-	@echo "# qcollectiongenerator _build/qthelp/fluidDB.qhcp"
+	@echo "# qcollectiongenerator _build/qthelp/fluidinfo.qhcp"
 	@echo "To view the help file:"
-	@echo "# assistant -collectionFile _build/qthelp/fluidDB.qhc"
+	@echo "# assistant -collectionFile _build/qthelp/fluidinfo.qhc"
 
 latex:
 	$(SPHINXBUILD) -b latex $(ALLSPHINXOPTS) _build/latex

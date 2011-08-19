@@ -17,7 +17,9 @@ from pyjamas.ui.RootPanel import RootPanel
 from pyjamas.ui.SimplePanel import SimplePanel
 from pyjamas import Timer, DeferredCommand, Window
 
-import tabs, userlist, defaults
+import tabs
+import userlist
+import defaults
 
 
 class Tickery(SimplePanel):
@@ -27,13 +29,13 @@ class Tickery(SimplePanel):
         self.tabs = tabs.Tabs()
         self.tabs.addTabListener(self)
         self.add(self.tabs)
-        
+
         Window.addWindowResizeListener(self)
         DeferredCommand.add(self)
 
         args = Window.getLocation().getSearchDict()
-        userlist.setSortKey(args.get('sort'))        
-        userlist.setIconSize(args.get('icons'))        
+        userlist.setSortKey(args.get('sort'))
+        userlist.setIconSize(args.get('icons'))
 
     def onBeforeTabSelected(self, sender, tabIndex):
         return True

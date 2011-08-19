@@ -14,7 +14,7 @@
 
 from pyjamas.JSONService import JSONProxy
 
-        
+
 class AdminService(JSONProxy):
     def __init__(self):
         JSONProxy.__init__(self, '/admin/tickery',

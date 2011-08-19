@@ -18,7 +18,9 @@ from pyjamas.ui.HorizontalPanel import HorizontalPanel
 
 import server
 
+
 class QueueSize(HorizontalPanel):
+
     def __init__(self):
         HorizontalPanel.__init__(self, Spacing=4)
         self.add(Label('Queue size:', StyleName='section'))

@@ -1,16 +1,17 @@
 Welcome!
 --------
 
-Tickery is an open-source application written on FluidDB
+Tickery is an open-source application written on Fluidinfo
 (http://fluidinfo.com/). You can play with our running version at
 http://tickery.net
 
 Tickery provides a fun way to explore sets of Twitter friends. There's much
-more to the story however, as its underlying data is stored in FluidDB.  This
-means it can be added to by anyone (i.e., you!), and searched on in any way.
+more to the story however, as its underlying data is stored in Fluidinfo.
+This means it can be added to by anyone (i.e., you!), and searched on in
+any way.
 
 We've open-sourced Tickery to help programmers see the insides of a
-substantial application written to use FluidDB. Although the Tickery
+substantial application written to use Fluidinfo. Although the Tickery
 documentation is currently very light, we hope to be able to change this.
 You're welcome to help, of course.
 
@@ -21,28 +22,28 @@ The best place to read an introduction to Tickery is in two articles on the
 Fluidinfo blog:
 
   Meet Tickery
-  http://blogs.fluidinfo.com/fluidDB/2010/01/21/meet-tickery/
+  http://blogs.fluidinfo.com/fluidinfo/2010/01/21/meet-tickery/
 
   Tickery, for programmers
-  http://blogs.fluidinfo.com/fluidDB/2010/01/21/tickery-for-programmers/
+  http://blogs.fluidinfo.com/fluidinfo/2010/01/21/tickery-for-programmers/
 
 Running Tickery
 ---------------
 
-You'll find instructions on how to run your own version of Tickery in the doc
-directory. If you have Sphinx (http://sphinx.pocoo.org) installed, you can
-build the documentation by running 'make' in the doc dir and then looking at
-doc/_build/html/index.html in your browser. If you don't have Sphinx
-installed and don't want to install it, just look directly at the doc/*.rst
-files.
+You'll find instructions on how to run your own version of Tickery in the
+doc directory. If you have Sphinx (http://sphinx.pocoo.org) installed, you
+can build the documentation by running 'make' in the doc dir and then
+looking at doc/_build/html/index.html in your browser. If you don't have
+Sphinx installed and don't want to install it, just look directly at the
+doc/*.rst files.
 
 Questions?
 ----------
 
-For discussion of Tickery, we suggest you join the FluidDB users mailing list
-at http://groups.google.com/group/fluiddb-users or join us in #fluiddb on
-irc.freenode.net Please say hi, we're very interested in helping people to
-understand both Tickery and FluidDB.
+For discussion of Tickery, we suggest you join the Fluidinfo users mailing
+list at http://groups.google.com/group/fluiddb-users or join us in
+#fluidinfo on irc.freenode.net Please say hi, we're very interested in
+helping people to understand both Tickery and Fluidinfo.
 
 
 Happy hacking!

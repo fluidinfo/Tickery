@@ -25,7 +25,7 @@ TICKERY_CALLBACK_URL = TICKERY_URL + '/' + TICKERY_CALLBACK_CHILD
 
 OAUTH_COOKIE = 'tickery-oauth'
 
-TWITTER_PASSWORD_VAR = 'FLUIDDB_TWITTER_PASSWORD'
+TWITTER_PASSWORD_VAR = 'FLUIDINFO_TWITTER_PASSWORD'
 TWITTER_USERNAME = u'twitter.com'
 TWITTER_NAME = u'Twitter Inc.'
 TWITTER_EMAIL = u'info@fluidinfo.com'
@@ -45,9 +45,9 @@ TWITTER_N_FOLLOWERS_TAG_NAME = u'followers_count'
 TWITTER_N_STATUSES_TAG_NAME = u'statuses_count'
 # TWITTER_LOCATION_TAG_NAME = u'location'
 
-FLUIDDB_ENDPOINT = 'http://fluiddb.fluidinfo.com/'
+FLUIDINFO_ENDPOINT = 'http://fluiddb.fluidinfo.com/'
 SANDBOX_ENDPOINT = 'http://sandbox.fluidinfo.com/'
-LOCAL_ENDPOINT   = 'http://localhost:8080/'
+LOCAL_ENDPOINT = 'http://localhost:8080/'
 
 FRIENDS_LIMIT = 1000
 RESULTS_LIMIT = 1000

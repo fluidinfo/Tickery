@@ -18,12 +18,14 @@ from txfluiddb.client import Endpoint, BasicCreds
 
 from tickery.www.defaults import TWITTER_USERNAME, TWITTER_PASSWORD_VAR
 
+
 def twitterPassword():
     try:
         return os.environ[TWITTER_PASSWORD_VAR]
     except KeyError:
         raise Exception('Please set %r in your environment.' %
                         TWITTER_PASSWORD_VAR)
+
 
 def twitterEndpoint(URL):
     return Endpoint(baseURL=URL,

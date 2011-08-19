@@ -12,7 +12,10 @@
 # implied.  See the License for the specific language governing
 # permissions and limitations under the License.
 
-import utils, tweet, server, defaults
+import utils
+import tweet
+import server
+import defaults
 
 from pyjamas.ui.Label import Label
 from pyjamas.ui.Image import Image
@@ -32,6 +35,7 @@ _iconData = (('Small', 'small'),
              ('Medium', 'medium'),
              ('Large', 'large'),
              )
+
 
 def setIconSize(size):
     global _iconSize
@@ -57,11 +61,12 @@ _sortKeyData = ((u'@Name ' + _up, 'screen_name'),
                 (u'Public (true/false)', 'protected'),
                 )
 
+
 def setSortKey(key):
     global _sortKey
     if key and key in [d[1] for d in _sortKeyData]:
         _sortKey = key
-        
+
 
 class LargeAvatar(VerticalPanel):
     def __init__(self, userListPanel, tabPanel, topPanel):
@@ -104,7 +109,7 @@ class LargeAvatar(VerticalPanel):
             '''%s<br/>%s''' %
             (u['name'],
              utils.screennameToTwitterLink(screenname, '@' + screenname)))
-        
+
         friends = utils.splitthousands(u['friends_count'])
         followers = utils.splitthousands(u['followers_count'])
         tweets = utils.splitthousands(u['statuses_count'])
@@ -124,7 +129,7 @@ class LargeAvatar(VerticalPanel):
         if self.followButton:
             self.remove(self.followButton)
             self.followButton = None
-            
+
         following = u.get('following')
         if following is not None:
             if self.topPanel.loginPanel.screenname == screenname:
@@ -230,7 +235,7 @@ class UpdateFollow(object):
     def onRemoteError(self, code, message, request_info):
         self.largeAvatar.followButton.setEnabled(True)
         self.largeAvatar.add(Label('Could not follow/unfollow: ' + message))
-        
+
 
 class UserListPanel(VerticalPanel):
     def __init__(self, tabPanel, topPanel, **kwargs):
@@ -250,7 +255,7 @@ class UserListPanel(VerticalPanel):
     def updateResultLink(self):
         self.resultLink.setHTML('Results:&nbsp;<a href="%s">link</a>' %
                                 self.tabPanel.resultsLink())
-    
+
     def setUsers(self, title, users, kwargs):
         self.users = users
         self.nUsers = len(users)
@@ -275,7 +280,7 @@ class UserListPanel(VerticalPanel):
             self.resultLink = HTML(StyleName='result-detail')
             self.updateResultLink()
             resultPanelBottomLeft.add(self.resultLink)
-            
+
             self.iconSizePanel = HorizontalPanel()
             self.iconSizePanel.add(
                 HTML('Icons:&nbsp;', StyleName='result-detail'))
@@ -306,11 +311,11 @@ class UserListPanel(VerticalPanel):
                 lb.addChangeListener(self)
                 self.sortPanel.add(lb)
                 resultPanelBottomLeft.add(self.sortPanel)
-                
+
             self.filterPanel = HorizontalPanel()
             resultPanelBottomLeft.add(self.filterPanel)
             self.addFilterWidgets()
-            
+
             if self.topPanel.loggedIn():
                 if 'screennames' in kwargs:
                     resultPanelBottomLeft.add(tweet.SimpleTweetPanel(
@@ -359,7 +364,7 @@ class UserListPanel(VerticalPanel):
             # Not yet logged in. Add ourselves to the list of UserListPanels
             # that the loginPanel will call when it's ready.
             self.topPanel.loginPanel.addUserListPanel(self)
-                    
+
     def onChange(self, sender):
         global _sortKey
         _sortKey = self.lb.getValue(self.lb.getSelectedIndex())
@@ -372,7 +377,7 @@ class UserListPanel(VerticalPanel):
         if self.iconAdder is not None:
             self.iconAdder.cancel()
             self.iconAdder = None
-            
+
         self.iconPanel.clear()
 
         # Set a title above the icons.
@@ -401,14 +406,15 @@ class UserListPanel(VerticalPanel):
         else:
             title = self.title
         self.iconPanel.add(HTML(title, StyleName='result-title'))
-        
+
         if not self.displayOrder:
             # There are no users to show.
             return
-            
+
         decreasing = _sortKey in (
             'friends_count', 'followers_count', 'statuses_count')
         alpha = _sortKey in ('screen_name', 'name', 'location')
+
         def _keyFunc(n):
             value = self.users[n][_sortKey]
             if decreasing:
@@ -458,7 +464,7 @@ class UserListPanel(VerticalPanel):
             self._unselect(img)
         else:
             self._select(img)
-        
+
     def _unselect(self, img):
         if img._selected:
             img.removeStyleDependentName('selected')
@@ -504,16 +510,17 @@ class UserListPanel(VerticalPanel):
     def adjustSize(self, width, height):
         self.adjustWidths(width)
 
+
 class IconAdder(object):
 
     _updatesPerLoop = 5
-    
+
     def __init__(self, userListPanel):
         self.userListPanel = userListPanel
         self.index = 0
         self.cancelled = False
         self.nUsers = len(userListPanel.displayOrder)
-        
+
     def onTimer(self, sender):
         imagesAndIds = self.userListPanel.images
         displayOrder = self.userListPanel.displayOrder

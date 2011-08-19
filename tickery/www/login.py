@@ -12,7 +12,10 @@
 # implied.  See the License for the specific language governing
 # permissions and limitations under the License.
 
-import defaults, utils, server, tickerytab
+import defaults
+import server
+import tickerytab
+import utils
 
 from pyjamas.ui.Grid import Grid
 from pyjamas.ui.HTML import HTML
@@ -21,6 +24,7 @@ from pyjamas.ui.Button import Button
 from pyjamas.ui.Label import Label
 from pyjamas.ui import HasAlignment, Event
 from pyjamas import Window, Cookies, DOM
+
 
 def _deleteCookie():
     # Set the cookie back in time a few years.
@@ -56,8 +60,7 @@ Your Tickery results will then display extra buttons and menus.
 
 class LoginPanel(Grid):
     def __init__(self):
-        Grid.__init__(self, 1, 2, StyleName='login-panel',
-                      HorizontalAlignment=HasAlignment.ALIGN_RIGHT)
+        Grid.__init__(self, 1, 2, StyleName='login-panel')
         self.setCellPadding(0)
         self.setCellSpacing(0)
         formatter = self.getCellFormatter()
@@ -100,7 +103,7 @@ class LoginPanel(Grid):
 
     def addUserListPanel(self, panel):
         self.userListPanels.append(panel)
-        
+
     def onMouseEnter(self, sender):
         pass
 
@@ -121,7 +124,7 @@ class LoginPanel(Grid):
             id = remote.login(LoginRedirector(self))
             if id < 0:
                 self.setWidget(0, 1, Label('oops: LoginPanel'))
-    
+
     def onClick(self, sender):
         width = (Window.getClientWidth() - tickerytab.POPUP_WIDTH) / 2.0
         self.popup.setPopupPosition(width, 100)
@@ -207,18 +210,20 @@ class LogoutRedirector(object):
         self.sender.notLoggedIn()
 
 
-
 class SetFriends(object):
     def __init__(self, screenname, sender):
         self.screenname = screenname
         self.sender = sender
-        
+
     def onRemoteResponse(self, result, request_info):
         friendsIds = result['friendsIds']
         d = {}
         for fid in friendsIds:
             d[fid] = None
-        self.sender.friendsIds = d #ict.fromkeys(friendsIds)
+        # TODO: figure out if the next line is right or an accidental
+        # insertion of " #" that just happens to have created valid
+        # code. The "d #ict" code is running on tickery.net
+        self.sender.friendsIds = d  # ict.fromkeys(friendsIds)
         self.sender.loggedIn = True
         # All done, finalize the setup of all existing UserListPanels so
         # they can filter users based on the friendsIds we just retrieved.

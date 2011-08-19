@@ -19,17 +19,18 @@ import time
 from twisted.internet import reactor, defer, task
 from twisted.python import log, failure
 
+
 def simpleBackoffIterator(maxResults=10, maxDelay=120.0, now=True,
                           initDelay=0.01, incFunc=None):
     assert maxResults > 0
     remaining = maxResults
     delay = initDelay
     incFunc = incFunc or partial(mul, 2.0)
-    
+
     if now:
         yield 0.0
         remaining -= 1
-        
+
     while remaining > 0:
         if delay < maxDelay:
             value = delay
@@ -38,7 +39,7 @@ def simpleBackoffIterator(maxResults=10, maxDelay=120.0, now=True,
         yield value
         delay = incFunc(delay)
         remaining -= 1
-        
+
 
 class RetryingCall(object):
     """Calls a function repeatedly, passing it args and kw args. Failures
@@ -65,13 +66,13 @@ class RetryingCall(object):
                 name = self._f.__class__.__name__
             except AttributeError:
                 name = 'unknown-function-name'
-            
+
         log.msg('Retrying call %s(%r %r): status=%s elapsed=%.03f' %
                 (name, self._args, self._kw,
                  'FAIL' if isinstance(result, failure.Failure) else 'OK',
                  time.time() - self._start))
         return result
-        
+
     def _err(self, fail):
         try:
             result = self._failureTester(fail)
@@ -99,7 +100,8 @@ class RetryingCall(object):
             d.addCallbacks(self._deferred.callback, self._err)
 
     def start(self, backoffIterator=None, failureTester=None):
-        self._backoffIterator = iter(backoffIterator or simpleBackoffIterator())
+        self._backoffIterator = iter(backoffIterator or
+                                     simpleBackoffIterator())
         self._failureTester = failureTester or (lambda _: None)
         self._deferred = defer.Deferred()
         self.failure = None

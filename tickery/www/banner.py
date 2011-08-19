@@ -12,7 +12,8 @@
 # implied.  See the License for the specific language governing
 # permissions and limitations under the License.
 
-import utils, server
+import utils
+import server
 
 from pyjamas.ui.Image import Image
 from pyjamas.ui.HTML import HTML
@@ -28,7 +29,7 @@ class Banner(VerticalPanel):
         self.add(Image('tickery.png', StyleName='banner-image'))
         strapline = HTML(
             '''Explore <a href="http://twitter.com">Twitter</a> with
-            <a href="http://fluidinfo.com/fluiddb">FluidDB</a>''',
+            <a href="http://fluidinfo.com">Fluidinfo</a>''',
             StyleName='strapline')
         self.add(strapline)
 
