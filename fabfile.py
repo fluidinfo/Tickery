@@ -63,7 +63,7 @@ def stop_server():
 
     print('Stopping Tickery service....')
     with settings(warn_only=True):
-        result = run('cat current/var/run/tickery.pid | xargs kill')
+        result = run('cat current/var/run/tickery.pid | xargs -r kill')
         if result.failed:
             print 'No Tickery server was running.'
 
