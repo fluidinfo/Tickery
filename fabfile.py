@@ -1,11 +1,11 @@
 """
-This fabfile contains recipes for deploying and starting Tickery
-(tickery.net).
+Recipes for deploying and starting Tickery on tickery.net.
 """
+
 from __future__ import with_statement
-from fabric.api import require, run, local, env, put
+from fabric.api import require, run, local, env, put, cd, settings
 from datetime import datetime
-from subprocess import Popen, PIPE
+
 
 def live():
     """
@@ -14,8 +14,9 @@ def live():
     RELEASE = datetime.utcnow().strftime('%Y%m%d-%H%M%S')
     env.hosts = ['tickery@tickery.net']
     env.sitename = 'tickery'
-    revno = Popen(['bzr', 'revno'], stdout=PIPE).communicate()[0][:-1]
-    env.tag = '%s-r%s-%s' % (env.sitename, revno, RELEASE)
+    # Perhaps use GIT-VERSION-GEN for a revno, when we understand it?
+    # revno = Popen(['bzr', 'revno'], stdout=PIPE).communicate()[0][:-1]
+    env.tag = '%s-%s' % (env.sitename, RELEASE)
 
 
 def upload():
@@ -26,11 +27,12 @@ def upload():
     require('hosts', provided_by=[live])
 
     # Bundle, upload, and extract the bzr sources.
-    local('bzr export --root=%(tag)s %(tag)s.tar.bz2' % env)
+    local('git archive --prefix=%(tag)s/ -v --format tar HEAD | '
+          'bzip2 > %(tag)s.tar.bz2' % env)
     put('%(tag)s.tar.bz2' % env, '.')
     run('tar xjvf %(tag)s.tar.bz2' % env)
 
-    # Bundle, upload, and extract our local pyjamas-generated .js and .html
+    # Bundle, upload, and extract our local pyjamas-generated files.
     # Note that this tarball is put into env.tag, which is where it's
     # correctly unpacked.
     local('tar cfvj tickery-pyjs.tar.bz2 '
@@ -53,22 +55,34 @@ def upload():
     run('find %(tag)s -type d -print0 | xargs -0 chmod go+rx' % env)
 
 
-def configure_server():
+def stop_server():
     """
-    Link the newly uploaded deployment in the right place in the filesystem
-    and start the Twisted Tickery server.
+    Stop any currently running Tickery service.
     """
     require('hosts', provided_by=[live])
-    run('rm -f current' % env)
+
+    print('Stopping Tickery service....')
+    with settings(warn_only=True):
+        result = run('cat current/var/run/tickery.pid | xargs kill')
+        if result.failed:
+            print 'No Tickery server was running.'
+
+
+def _start_server():
+    """
+    Link the newly uploaded deployment in the right place in the filesystem
+    and start the Twisted Tickery service.  Note that you cannot run this
+    command by itself, since 'tag' has to be set to an already uploaded
+    distribution.
+    """
+    require('hosts', provided_by=[live])
+    run('rm -f current')
     run('ln -s %(tag)s current' % env)
-
-    # For when we upgrade to 10.04 and have a modern version of upstart:
-    # I'm not sure that restart is right here. If it's not already running
-    # restart doesn't do anything. Better to do stop || true, then start?
-    # run('restart %(sitename)s' % env)
-
-    # For now we're starting Tickery on a Hardy machine via a shell script.
-    run('%(tag)s)/bin/run-tickery.sh' % env)
+    with cd('current'):
+        # For now we're starting Tickery via a shell script. This will be
+        # changed to use upstart.
+        # run('restart %(sitename)s' % env)
+        run('bin/run-tickery.sh')
 
 
 def deploy():
@@ -76,4 +90,5 @@ def deploy():
     Wraps all the steps up to deploy to the live server.
     """
     upload()
-    configure_server()
+    stop_server()
+    _start_server()
