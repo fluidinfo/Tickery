@@ -164,9 +164,8 @@ class AdderCache(DumpingCache):
             raise Exception('Cannot cancel unknown user %r.' % screenname)
         else:
             if user.state == 'underway' or user.state == 'queued':
-                for job in self.rdq.underway() + self.rdq.pending():
-                    u = job.jobarg
-                    if u.screenname == screenname:
+                for job in self.rdq.underway() + set(self.rdq.pending()):
+                    if job.jobarg.screenname == screenname:
                         log.msg('Cancelling %s %r addition.' %
                                 (user.state, screenname))
                         job.cancel()
