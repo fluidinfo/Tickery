@@ -34,9 +34,10 @@ class User(object):
         'failed': ('underway', 'added'),
         }
 
-    def __init__(self, screenname, nFriends):
+    def __init__(self, screenname, nFriends, priority):
         self.screenname = screenname
         self.nFriends = nFriends
+        self.priority = priority
         self.reset()
 
     def reset(self):
@@ -64,13 +65,13 @@ class User(object):
         return self.state == 'canceled'
 
     def __str__(self):
-        return ('%-16s state=%s nFriends=%d'
-                % (self.screenname, self.state, self.nFriends))
+        return ('%-16s state=%s priority=%d nFriends=%d'
+                % (self.screenname, self.state, self.priority, self.nFriends))
 
     def __repr__(self):
-        return '<%s screenname=%r state=%r nFriends=%d>' % (
+        return '<%s screenname=%r state=%r priority=%d nFriends=%d>' % (
             self.__class__.__name__, self.screenname, self.state,
-            self.nFriends)
+            self.priority, self.nFriends)
 
 
 class AdderCache(DumpingCache):
@@ -94,13 +95,13 @@ class AdderCache(DumpingCache):
                     (len(added), len(notAdded)))
             if self.cache.restoreAddQueue:
                 log.msg('Restoring add queue.')
-                # Re-queue, in original queue order, any users that are
-                # marked as having been added.
+                # Re-queue, in original queue entry order, any users that
+                # have not yet been added.
                 for user in sorted(notAdded, key=attrgetter('queuedAt')):
                     log.msg('Restoring %r (previous state %r)' %
                             (user.screenname, user.state))
                     user.reset()
-                    d = self.rdq.put(user)
+                    d = self.rdq.put(user, user.priority)
                     d.addErrback(self._reportCancelled, user.screenname)
                     self.clean = False
             else:
@@ -118,18 +119,18 @@ class AdderCache(DumpingCache):
             s.append(str(self.users[key]))
         return '\n'.join(s)
 
-    def put(self, screenname, nFriends):
+    def put(self, screenname, nFriends, priority):
         screennameLower = screenname.lower()
         user = self.users.get(screennameLower)
         if user:
             user.nFriends = nFriends
             user.setState('queued')
         else:
-            user = User(screenname, nFriends)
+            user = User(screenname, nFriends, priority)
             self.users[screennameLower] = user
         log.msg('Adding screenname %r to request queue.' % screenname)
         self.clean = False
-        d = self.rdq.put(user)
+        d = self.rdq.put(user, priority)
         d.addErrback(self._reportCancelled, screenname)
 
     def _addUser(self, user):
