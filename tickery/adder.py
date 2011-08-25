@@ -245,7 +245,7 @@ class AdderCache(DumpingCache):
         pending = yield self.rdq.stop()
         if pending:
             log.msg('Pending user additions canceled: %r' %
-                    [p.screenname for p in pending])
+                    [job.jobarg.screenname for job in pending])
         super(AdderCache, self).close()
 
     def _reportCancelled(self, fail, screenname):
