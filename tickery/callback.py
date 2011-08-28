@@ -15,15 +15,17 @@
 import uuid
 try:
     import json
+    _ = json  # Keep pyflakes quiet about redefinition of unused json.
 except ImportError:
     import simplejson as json
 
 from twisted.python import log
 from twisted.web import resource, client, server
 
+from txretry.retry import RetryingCall
+
 from tickery import twitter, oauth, consumer, signature
 from tickery.www import defaults
-from tickery.looper import RetryingCall
 
 
 class Callback(resource.Resource):

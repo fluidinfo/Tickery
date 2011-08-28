@@ -15,6 +15,7 @@
 import functools
 try:
     import json
+    _ = json  # Keep pyflakes quiet about redefinition of unused json.
 except ImportError:
     import simplejson as json
 import time
@@ -25,7 +26,8 @@ from twisted.internet.error import ConnectionLost
 from twisted.web import client, error, http
 from twisted.python import log, failure
 
-from tickery.looper import RetryingCall
+from txretry.retry import RetryingCall
+
 from tickery.www import defaults
 from tickery import oauth, consumer, signature, version, error as terror
 
