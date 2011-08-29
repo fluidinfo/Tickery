@@ -39,6 +39,11 @@ BITLY_URL_LEN = 20
 WORK_TO_CREATE_A_FRIEND = 3
 WORK_TO_TAG_A_FRIEND = 1
 
+# User addition priorities. Lower values = higher priority.
+PRIORITY_ADMIN = 1
+PRIORITY_NORMAL = 5
+PRIORITY_BULK = 10
+
 # Put this into www/defaults and re-org stuff in www/*.py in another branch.
 tabName = {
     'simple': 'simple',
@@ -391,7 +396,8 @@ def cb_intermediateQuery(users, screennames, cache, endpoint, queryTree):
     unknown = [name for name in users if not cache.adderCache.known(name)]
     if unknown:
         for name in unknown:
-            cache.adderCache.put(name, users[name]['friends_count'])
+            cache.adderCache.put(name, users[name]['friends_count'],
+                                 PRIORITY_NORMAL)
 
     # Get the status of all the queried screennames.
     statusSummary = cache.adderCache.statusSummary(screennames)
@@ -567,7 +573,8 @@ def directAddUser(cache, screenname):
         if cache.adderCache.added(screenname):
             raise Exception('%s is already added' % screenname)
         else:
-            cache.adderCache.put(screenname, user['friends_count'])
+            cache.adderCache.put(screenname, user['friends_count'],
+                                 PRIORITY_ADMIN)
 
 
 @defer.inlineCallbacks
@@ -593,7 +600,8 @@ def bulkAddUsers(cache, screennames):
                 errs.append('%r is already added.' % screenname)
             else:
                 log.msg('Bulk add of %r.' % screenname)
-                cache.adderCache.put(screenname, user['friends_count'])
+                cache.adderCache.put(screenname, user['friends_count'],
+                                     PRIORITY_BULK)
     defer.returnValue(errs)
 
 
