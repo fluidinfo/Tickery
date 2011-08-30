@@ -19,7 +19,6 @@ from txfluiddb.client import Object
 
 from tickery import ftwitter
 from tickery.cacheutils import DumpingCache
-from tickery.www.defaults import TWITTER_USERNAME
 
 
 class Item(object):

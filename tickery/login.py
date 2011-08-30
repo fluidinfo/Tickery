@@ -15,9 +15,10 @@
 from twisted.python import log
 from twisted.web import client
 
+from txretry.retry import RetryingCall
+
 from tickery import twitter, oauth, consumer, signature
 from tickery.www import defaults
-from tickery.looper import RetryingCall
 
 
 def getTwitterOAuthURL(oauthTokenDict):
