@@ -3,3 +3,4 @@ bzr+http://bazaar.launchpad.net/~txfluiddb-maint/txfluiddb/trunk#egg=txFluidDB
 http://jon.es/other/txJSON-RPC-fluidinfo.tar.gz#egg=txJSON-RPC
 simplejson
 ply
+-e git+https://github.com/fluidinfo/txretry.git#egg=txretry
